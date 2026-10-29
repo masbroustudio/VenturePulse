@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import { useDeals } from "@/hooks/useDeals";
 import { X, Copy, Check, Send } from "lucide-react";
@@ -13,56 +13,176 @@ interface Swatch {
   detail: string;
 }
 
-const DEFAULT_SWATCHES: Swatch[] = [
-  {
-    id: "denim",
-    name: "14oz Okayama Indigo",
-    pantone: "PANTONE 19-4052 Classic Blue",
-    hex: "#1e3a8a",
-    detail: "Kuroki Mills, Okayama Japan • Pure vegetable indigo warp • GOTS Certified",
-  },
-  {
-    id: "citron",
-    name: "Citron Selvedge Ticker",
-    pantone: "PANTONE 13-0632 Endive",
-    hex: "#eab308",
-    detail: "Custom high-visibility shuttle selvedge ID line woven exclusively for this drop",
-  },
-  {
-    id: "nickel",
-    name: "Matte Nickel Hardware",
-    pantone: "PANTONE 18-0403 Dark Gull Gray",
-    hex: "#52525b",
-    detail: "Solid forged brass buttons with debossed architectural coordinates",
-  },
-  {
-    id: "pocket",
-    name: "Organic Cotton Pocketing",
-    pantone: "PANTONE 11-0601 Bright White",
-    hex: "#f4f4f5",
-    detail: "10oz herringbone pocket bags screenprinted with creator manifesto",
-  },
-];
+function getCategorySwatches(deal: any): Swatch[] {
+  const cat = (deal?.category || "").toLowerCase();
+  const brand = (deal?.brand_name || deal?.brand || "").toLowerCase();
+  const specMaterials: string[] = deal?.spec?.materials || [];
+
+  if (cat.includes("tech") || brand.includes("teenage") || brand.includes("keychron")) {
+    return [
+      {
+        id: "aluminum",
+        name: specMaterials[0] || "CNC 6061 Aluminum",
+        pantone: "PANTONE 14-4102 Cool Gray",
+        hex: "#94a3b8",
+        detail: "Precision bead-blasted and anodized aerospace alloy enclosure",
+      },
+      {
+        id: "switches",
+        name: specMaterials[1] || "Tactile Low-Profile Switches",
+        pantone: "PANTONE 19-4006 Caviar",
+        hex: "#18181b",
+        detail: "Custom damped mechanical stems engineered for 70M acoustic cycles",
+      },
+      {
+        id: "display",
+        name: specMaterials[2] || "Monochrome OLED Micro-Panel",
+        pantone: "PANTONE 12-0752 Sulphur Spring",
+        hex: "#facc15",
+        detail: "High-contrast anti-glare display running custom firmware routines",
+      },
+      {
+        id: "circuit",
+        name: specMaterials[3] || "Gold-Plated Circuitry",
+        pantone: "PANTONE 14-0955 Solar Power",
+        hex: "#d97706",
+        detail: "Hard-gold immersed contacts with debossed motherboard coordinates",
+      },
+    ];
+  }
+
+  if (cat.includes("beverage") || brand.includes("matcha")) {
+    return [
+      {
+        id: "tea",
+        name: specMaterials[0] || "Single-Origin Uji Tencha",
+        pantone: "PANTONE 18-0332 Green Olive",
+        hex: "#4d7c0f",
+        detail: "First-harvest ceremonial tencha leaves, slow stone-ground in Kyoto",
+      },
+      {
+        id: "tin",
+        name: specMaterials[1] || "UV-Resistant Matte Tinplate",
+        pantone: "PANTONE 19-4004 Black Onyx",
+        hex: "#27272a",
+        detail: "Food-grade double-sealed tin purged with liquid nitrogen for freshness",
+      },
+      {
+        id: "bamboo",
+        name: specMaterials[2] || "Artisanal Bamboo Chasen",
+        pantone: "PANTONE 13-0922 Sunburst",
+        hex: "#d4b996",
+        detail: "Hand-carved single-piece golden bamboo whisk with 100 fine prongs",
+      },
+      {
+        id: "paper",
+        name: specMaterials[3] || "Wabi-Sabi Sand Packaging",
+        pantone: "PANTONE 11-0602 Snow White",
+        hex: "#f5f5f4",
+        detail: "FSC-certified uncoated mulberry paper debossed with minimalist seal",
+      },
+    ];
+  }
+
+  if (cat.includes("living") || cat.includes("lighting") || brand.includes("snow peak") || brand.includes("flos")) {
+    return [
+      {
+        id: "titanium",
+        name: specMaterials[0] || "Grade 2 Aerospace Titanium",
+        pantone: "PANTONE 17-5104 Ultimate Gray",
+        hex: "#64748b",
+        detail: "Hand-finished Japanese titanium with natural anodized patina",
+      },
+      {
+        id: "glass",
+        name: specMaterials[1] || "Borosilicate Fluted Glass",
+        pantone: "PANTONE 12-5202 Whitecap Gray",
+        hex: "#e2e8f0",
+        detail: "Thermal shock-resistant blown diffuser scattering warm 2700K ambient light",
+      },
+      {
+        id: "brass",
+        name: specMaterials[2] || "Solid Brushed Brass Fixtures",
+        pantone: "PANTONE 16-0953 Nugget Gold",
+        hex: "#b45309",
+        detail: "Machined architectural hardware unlacquered to age naturally over time",
+      },
+      {
+        id: "canvas",
+        name: specMaterials[3] || "Waxed Canvas Carry Roll",
+        pantone: "PANTONE 19-0822 Olive Night",
+        hex: "#365314",
+        detail: "18oz heavy duck canvas infused with beeswax and paraffin",
+      },
+    ];
+  }
+
+  // Default: Apparel & Outerwear
+  return [
+    {
+      id: "denim",
+      name: specMaterials[0] || "14oz Okayama Indigo Denim",
+      pantone: "PANTONE 19-4052 Classic Blue",
+      hex: "#1e3a8a",
+      detail: "Kuroki Mills, Okayama Japan • Pure vegetable indigo warp • GOTS Certified",
+    },
+    {
+      id: "citron",
+      name: specMaterials[1] || "Citron Selvedge Ticker",
+      pantone: "PANTONE 13-0632 Endive",
+      hex: "#eab308",
+      detail: "Custom high-visibility shuttle selvedge ID line woven exclusively for this drop",
+    },
+    {
+      id: "nickel",
+      name: specMaterials[2] || "Matte Nickel Hardware",
+      pantone: "PANTONE 18-0403 Dark Gull Gray",
+      hex: "#52525b",
+      detail: "Solid forged brass buttons with debossed architectural coordinates",
+    },
+    {
+      id: "pocket",
+      name: specMaterials[3] || "Organic Cotton Pocketing",
+      pantone: "PANTONE 11-0601 Bright White",
+      hex: "#f4f4f5",
+      detail: "10oz herringbone pocket bags screenprinted with creator manifesto",
+    },
+  ];
+}
 
 export const LookbookModal: React.FC = () => {
-  const { selectedDeal, setSelectedDeal, activeProfile, showToast, mode } = useAppStore();
+  const { selectedDeal, setSelectedDeal, activeProfile, showToast } = useAppStore();
   const { updateStage } = useDeals();
 
-  const [activeSwatch, setActiveSwatch] = useState<Swatch>(DEFAULT_SWATCHES[0]);
+  const swatches = getCategorySwatches(selectedDeal);
+  const [activeSwatch, setActiveSwatch] = useState<Swatch>(swatches[0]);
   const [runUnits, setRunUnits] = useState<number>(500);
   const [retailPrice, setRetailPrice] = useState<number>(185);
   const [copied, setCopied] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (selectedDeal) {
+      const dynamicSwatches = getCategorySwatches(selectedDeal);
+      setActiveSwatch(dynamicSwatches[0]);
+      setRunUnits(selectedDeal.spec?.run_units || selectedDeal.run_units || 500);
+      setRetailPrice(selectedDeal.spec?.msrp_usd || selectedDeal.msrp || 185);
+    }
+  }, [selectedDeal]);
+
   if (!selectedDeal) return null;
 
-  const brandName = selectedDeal.brand_name || selectedDeal.brand || "Acne Studios";
-  const title = selectedDeal.title || `${selectedDeal.category || "Apparel"} Capsule Drop`;
+  const brandName = selectedDeal.brand_name || selectedDeal.brand || "Partner Brand";
+  const title = selectedDeal.title || selectedDeal.spec?.title || `${selectedDeal.category || "Limited"} Capsule Drop`;
+  const description =
+    selectedDeal.spec?.description ||
+    "Co-architected with algorithmic precision. Crafted using premium materials and archival construction techniques, carrying cross-domain cultural resonances identified by Qloo Taste AI™.";
+
   const gmv = runUnits * retailPrice;
-  const royaltyPct = 0.18;
+  const royaltyPct = selectedDeal.spec?.creator_royalty_pct || 0.18;
   const creatorRoyalty = Math.round(gmv * royaltyPct);
 
   const pitchSubject = `Collaboration Proposal: ${brandName} × ${activeProfile.name} (Qloo Taste Match)`;
-  const pitchBody = `Hi Partnerships Team,
+  const pitchBody = selectedDeal.spec?.outreach_pitch || `Hi Partnerships Team,
 
 According to Qloo's cultural intelligence graph (250M+ entities), our audience exhibits an extraordinary statistical affinity for your brand aesthetic and material craftsmanship.
 
@@ -125,21 +245,19 @@ ${activeProfile.name} Partnerships Lead`;
                 {title}
               </h3>
               <p className="text-xs text-inkMuted dark:text-darkMuted leading-relaxed font-sans mt-2">
-                Co-architected with algorithmic precision. Crafted using premium materials and archival construction techniques, carrying cross-domain cultural resonances identified by Qloo Taste AI™.
+                {description}
               </p>
             </div>
 
             {/* Technical Vector Blueprint Schematic */}
             <div className="w-full h-36 bg-surface dark:bg-darkSurface border border-editorial rounded p-3 flex items-center justify-center relative overflow-hidden font-mono text-xs">
               <svg className="w-full h-full stroke-ink dark:stroke-darkInk" viewBox="0 0 320 120" fill="none">
-                {/* CAD Grid Background */}
                 <defs>
                   <pattern id="cad-grid" width="10" height="10" patternUnits="userSpaceOnUse">
                     <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e4e4e7" strokeWidth="0.5" className="dark:stroke-zinc-800" />
                   </pattern>
                 </defs>
                 <rect width="320" height="120" fill="url(#cad-grid)" />
-                {/* Technical schematic lines */}
                 <path d="M 60 30 L 110 20 L 160 30 L 160 100 L 60 100 Z" strokeWidth="1.5" />
                 <path d="M 160 30 L 210 20 L 260 30 L 260 100 L 160 100 Z" strokeWidth="1.5" />
                 <line x1="160" y1="20" x2="160" y2="105" strokeWidth="1" strokeDasharray="3,2" />
@@ -147,7 +265,6 @@ ${activeProfile.name} Partnerships Lead`;
                 <circle cx="210" cy="55" r="4" strokeWidth="1" />
                 <path d="M 75 60 L 95 60 L 95 80 L 75 80 Z" strokeWidth="1" />
                 <path d="M 225 60 L 245 60 L 245 80 L 225 80 Z" strokeWidth="1" />
-                {/* Dimension callouts */}
                 <text x="70" y="112" fontSize="7" fill="#ea580c" fontFamily="monospace">SEAM: 480mm</text>
                 <text x="180" y="112" fontSize="7" fill="#ea580c" fontFamily="monospace">TOLERANCE: ±0.5mm</text>
               </svg>
@@ -163,7 +280,7 @@ ${activeProfile.name} Partnerships Lead`;
                 <span className="text-terracotta">Click swatch to inspect BOM</span>
               </div>
               <div className="flex items-center space-x-2">
-                {DEFAULT_SWATCHES.map((swatch) => (
+                {swatches.map((swatch) => (
                   <button
                     key={swatch.id}
                     onClick={() => setActiveSwatch(swatch)}
@@ -191,7 +308,9 @@ ${activeProfile.name} Partnerships Lead`;
             <div className="p-4 rounded bg-surface dark:bg-darkSurface border border-editorial space-y-3 font-mono text-xs">
               <div className="flex items-center justify-between border-b border-editorial pb-1.5 text-terracotta font-bold">
                 <span>📊 Dynamic Unit Economics Simulator</span>
-                <span className="text-[10px] text-inkMuted dark:text-darkMuted">18% Standard Royalty</span>
+                <span className="text-[10px] text-inkMuted dark:text-darkMuted">
+                  {Math.round(royaltyPct * 100)}% Standard Royalty
+                </span>
               </div>
 
               <div className="space-y-1">
@@ -237,7 +356,7 @@ ${activeProfile.name} Partnerships Lead`;
                 </div>
                 <div>
                   <span className="text-inkMuted dark:text-darkMuted block text-[10px]">
-                    CREATOR ROYALTY (18%)
+                    CREATOR ROYALTY ({Math.round(royaltyPct * 100)}%)
                   </span>
                   <span className="text-emerald font-bold text-sm">
                     ${creatorRoyalty.toLocaleString()}
@@ -273,24 +392,14 @@ ${activeProfile.name} Partnerships Lead`;
               </div>
 
               <div className="space-y-2 text-ink dark:text-darkInk font-sans text-xs leading-relaxed bg-paper dark:bg-darkSubtle p-4 rounded border border-editorial">
-                <p>Hi Partnerships Team,</p>
-                <p>
-                  According to Qloo&apos;s cultural intelligence graph (250M+ entities), our audience exhibits an extraordinary <strong className="text-terracotta">statistical affinity</strong> for your brand aesthetic and material craftsmanship.
-                </p>
-                <p>
-                  Rather than generic logo placements, we have pre-architected a limited capsule concept: <em className="font-serif italic text-sm">{title}</em>, targeting our high-conversion collectors cohort.
-                </p>
-                <p>
-                  Projected commercial scope: <strong>${retailPrice} MSRP</strong> × <strong>{runUnits} units</strong> = <strong>${gmv.toLocaleString()} GMV</strong>.
-                </p>
-                <p>Would you be open to an initial 10-minute briefing on the cultural data and production specs?</p>
+                <p className="whitespace-pre-wrap">{pitchBody}</p>
               </div>
             </div>
 
             {/* Webhook Dispatch Button */}
             <div className="pt-4 border-t border-editorial flex items-center justify-between">
               <span className="text-inkMuted dark:text-darkMuted text-[11px]">
-                Destination: CRM Deal Desk &amp; HubSpot Webhook
+                Destination: CRM Deal Desk &amp; Webhook
               </span>
               <button
                 onClick={handleDispatch}

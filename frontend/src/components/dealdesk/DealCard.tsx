@@ -79,8 +79,8 @@ export const DealCard: React.FC<DealCardProps> = ({
         <div className="font-bold text-sm text-ink dark:text-darkInk group-hover:text-terracotta transition">
           {deal.brand_name}
         </div>
-        <div className="font-serif italic text-base text-ink dark:text-darkInk mt-1 leading-snug truncate">
-          &ldquo;{deal.category.toUpperCase()} Capsule Collab&rdquo;
+        <div className="font-serif italic text-base text-ink dark:text-darkInk mt-1 leading-snug truncate" title={deal.title || deal.spec?.title}>
+          &ldquo;{deal.title || deal.spec?.title || `${deal.brand_name} Capsule Collab`}&rdquo;
         </div>
       </div>
 

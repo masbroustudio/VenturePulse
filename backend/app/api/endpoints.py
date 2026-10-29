@@ -172,13 +172,69 @@ async def get_deals(stage: Optional[str] = None):
     # Seed default deals if empty
     if not deals:
         defaults = [
-            ("card_1", "Acne Studios", "apparel", "7.8x", 0.94, "Discovered", 185.0, 500, 92500.0),
-            ("card_2", "Teenage Engineering", "tech", "8.4x", 0.91, "Vetted", 249.0, 300, 74700.0),
-            ("card_3", "Matcha Kari", "beverage", "6.9x", 0.88, "Pitch Ready", 38.0, 1000, 38000.0),
-            ("card_4", "Snow Peak", "living", "9.1x", 0.96, "Dispatched", 320.0, 200, 64000.0)
+            ("card_1", "Acne Studios", "The 'Midnight Grid' 14oz Selvedge Chore Coat", "apparel", "7.8x", 0.94, "Discovered", 185.0, 500, 92500.0, {
+                "title": "The 'Midnight Grid' 14oz Selvedge Chore Coat",
+                "brand_partner": "Acne Studios",
+                "category": "apparel",
+                "affinity_multiplier": "7.8x",
+                "description": "Crafted in collaboration with Kuroki Mills, Okayama Japan. 14oz raw selvedge with citron ticker and debossed hardware.",
+                "materials": ["14oz Okayama Indigo Denim", "Citron Selvedge Ticker", "Matte Nickel Hardware", "Organic Cotton Pocketing"],
+                "colorways": ["Midnight Indigo", "Raw Ecru"],
+                "msrp_usd": 185.0,
+                "run_units": 500,
+                "projected_gmv": 92500.0,
+                "creator_royalty_pct": 0.18,
+                "projected_royalty": 16650.0,
+                "outreach_pitch": "According to Qloo's cultural intelligence graph (250M+ entities), our audience exhibits an extraordinary 7.8x statistical affinity for Acne Studios and Japanese raw selvedge outerwear."
+            }),
+            ("card_2", "Teenage Engineering", "Pocket Operator VP-01 Synthesizer", "tech", "8.4x", 0.91, "Vetted", 249.0, 300, 74700.0, {
+                "title": "Pocket Operator VP-01 Synthesizer",
+                "brand_partner": "Teenage Engineering",
+                "category": "tech",
+                "affinity_multiplier": "8.4x",
+                "description": "Custom pocket synthesizer with physical tactile keys, silicon-free architectural chassis, and custom generative firmware.",
+                "materials": ["CNC Anodized 6061 Aluminum", "Cherry MX Ultra-Low Profile Switches", "Monochrome OLED Display"],
+                "colorways": ["Anodized Silver", "Space Gray", "Signal Orange"],
+                "msrp_usd": 249.0,
+                "run_units": 300,
+                "projected_gmv": 74700.0,
+                "creator_royalty_pct": 0.18,
+                "projected_royalty": 13446.0,
+                "outreach_pitch": "Qloo data identifies an 8.4x cross-domain affinity among electronic audio producers and tactile design enthusiasts for Teenage Engineering."
+            }),
+            ("card_3", "Matcha Kari", "Ceremonial Single-Origin Uji Matcha", "beverage", "6.9x", 0.88, "Pitch Ready", 38.0, 1000, 38000.0, {
+                "title": "Ceremonial Single-Origin Uji Matcha",
+                "brand_partner": "Matcha Kari",
+                "category": "beverage",
+                "affinity_multiplier": "6.9x",
+                "description": "First-harvest ceremonial grade tencha stone-ground in Kyoto, packaged in matte nitrogen-sealed collectable tins.",
+                "materials": ["Single-Origin Uji Tencha", "Food-Grade UV Matte Tinplate", "Artisanal Bamboo Chasen"],
+                "colorways": ["Ceremonial Green", "Wabi-Sabi Sand", "Ink Black"],
+                "msrp_usd": 38.0,
+                "run_units": 1000,
+                "projected_gmv": 38000.0,
+                "creator_royalty_pct": 0.20,
+                "projected_royalty": 7600.0,
+                "outreach_pitch": "Our audience indexes 6.9x above baseline for slow-living rituals and ceremonial Japanese green tea culture."
+            }),
+            ("card_4", "Snow Peak", "Titanium Double-Wall Minimalist Sconce", "living", "9.1x", 0.96, "Dispatched", 320.0, 200, 64000.0, {
+                "title": "Titanium Double-Wall Minimalist Sconce",
+                "brand_partner": "Snow Peak",
+                "category": "living",
+                "affinity_multiplier": "9.1x",
+                "description": "Aerospace-grade Japanese titanium luminaire engineered for both expedition bivouacs and modern residential studios.",
+                "materials": ["Grade 2 Aerospace Titanium", "Hand-Blown Borosilicate Glass", "Solid Brushed Brass"],
+                "colorways": ["Raw Titanium", "Charcoal Oxide", "Sandblasted Gold"],
+                "msrp_usd": 320.0,
+                "run_units": 200,
+                "projected_gmv": 64000.0,
+                "creator_royalty_pct": 0.18,
+                "projected_royalty": 11520.0,
+                "outreach_pitch": "Cross-domain mapping reveals 9.1x mutual affinity between modern spatial creators and Snow Peak's outdoor minimalism."
+            })
         ]
-        for c_id, name, cat, mult, syn, stg, msrp, units, gmv in defaults:
-            storage.save_deal(c_id, "seed", name, cat, mult, syn, stg, msrp, units, gmv)
+        for c_id, name, title, cat, mult, syn, stg, msrp, units, gmv, spec in defaults:
+            storage.save_deal(c_id, "seed", name, cat, mult, syn, stg, msrp, units, gmv, title=title, spec_json=json.dumps(spec))
         deals = storage.get_deals(stage=stage)
 
     total_value = sum(d["gmv"] for d in deals)

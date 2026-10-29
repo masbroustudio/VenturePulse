@@ -262,13 +262,15 @@ class AgentCouncil:
                 card_id=card_id,
                 session_id=session_id,
                 brand_name=refined_candidate,
+                title=product_spec.title,
                 category=product_spec.category,
                 affinity_multiplier=product_spec.affinity_multiplier,
                 synergy_score=0.94,
                 stage="Pitch Ready",
                 msrp=product_spec.msrp_usd,
                 run_units=product_spec.run_units,
-                gmv=product_spec.projected_gmv
+                gmv=product_spec.projected_gmv,
+                spec_json=json.dumps(product_spec.model_dump())
             )
             logger.info(f"Auto-persisted session {session_id} and deal {card_id} into SQLite database.")
         except Exception as e:

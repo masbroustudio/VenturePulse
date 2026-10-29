@@ -18,12 +18,47 @@ export const IntakeForm: React.FC = () => {
   } = useAppStore();
 
   const [newAnchorInput, setNewAnchorInput] = useState("");
+  const [resolving, setResolving] = useState(false);
 
-  const handleAddAnchor = (e: React.FormEvent) => {
+  const handleAddAnchor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newAnchorInput.trim()) return;
-    addProfileChip(newAnchorInput.trim());
+    const query = newAnchorInput.trim();
+    if (!query || resolving) return;
+
+    setResolving(true);
+    showToast(`Resolving "${query}" against live Qloo Taste Graph (250M+)...`);
+
+    try {
+      const res = await fetch("/api/resolve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: query,
+          types: ["tags", "artist", "brand"],
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results && data.results.length > 0) {
+          const top = data.results[0];
+          const resolvedName = top.name || query;
+          const resolvedType = top.type || "aesthetic";
+          addProfileChip(resolvedName, resolvedType);
+          showToast(`✓ Resolved Qloo URN: ${top.entity_id || resolvedName}`);
+          setNewAnchorInput("");
+          setResolving(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Live resolve fallback:", err);
+    }
+
+    // Graceful fallback if offline or no exact match
+    addProfileChip(query);
     setNewAnchorInput("");
+    setResolving(false);
   };
 
   const handleLaunchCouncil = () => {
@@ -130,9 +165,10 @@ export const IntakeForm: React.FC = () => {
             />
             <button
               type="submit"
-              className="px-3 py-1.5 rounded bg-subtle dark:bg-darkSubtle border border-editorial hover:border-terracotta text-ink dark:text-darkInk font-mono text-xs font-semibold transition whitespace-nowrap"
+              disabled={resolving}
+              className="px-3 py-1.5 rounded bg-subtle dark:bg-darkSubtle border border-editorial hover:border-terracotta text-ink dark:text-darkInk font-mono text-xs font-semibold transition whitespace-nowrap disabled:opacity-50"
             >
-              + Resolve URN
+              {resolving ? "Resolving..." : "+ Resolve URN"}
             </button>
           </form>
         </div>

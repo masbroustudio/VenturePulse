@@ -63,6 +63,7 @@ export function useDeals() {
   const mergedDeals = data?.deals || activeCards.map((c, i) => ({
     card_id: `card_${i + 1}`,
     brand_name: c.brand,
+    title: c.title,
     category: c.domain,
     affinity_multiplier: c.affinity.replace("⚡ ", ""),
     synergy_score: c.score,

@@ -1,9 +1,12 @@
+import { ProductCollabSpec } from "./agent";
+
 export type PipelineStage = "Discovered" | "Vetted" | "Pitch Ready" | "Dispatched";
 
 export interface DealCardData {
   card_id: string;
   session_id?: string;
   brand_name: string;
+  title?: string;
   category: string;
   affinity_multiplier: string;
   synergy_score: number;
@@ -11,6 +14,7 @@ export interface DealCardData {
   msrp: number;
   run_units: number;
   gmv: number;
+  spec?: ProductCollabSpec;
   updated_at?: string;
 }
 

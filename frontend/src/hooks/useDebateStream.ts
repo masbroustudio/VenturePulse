@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAppStore } from "@/lib/store";
 import { TurnMessage, ConsensusEvent } from "@/types/agent";
 
 export type DagNodeId = "intake" | "qloo" | "analyst" | "strategist" | "director" | "deepeval" | "supabase";
 
 export function useDebateStream() {
+  const queryClient = useQueryClient();
   const { mode, activeProfile, backendOnline, showToast } = useAppStore();
 
   const [turns, setTurns] = useState<TurnMessage[]>([]);
@@ -175,6 +177,7 @@ export function useDebateStream() {
           setIsConsensus(true);
           setIsRunning(false);
           es.close();
+          queryClient.invalidateQueries({ queryKey: ["crm-deals"] });
           showToast(`Live Consensus Achieved: Saved ${event.card_id || "Deal"}`);
         } catch (err) {
           console.error("Parse consensus error:", err);

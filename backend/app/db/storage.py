@@ -62,6 +62,7 @@ class Storage:
                 card_id TEXT PRIMARY KEY,
                 session_id TEXT,
                 brand_name TEXT NOT NULL,
+                title TEXT,
                 category TEXT NOT NULL,
                 affinity_multiplier TEXT NOT NULL,
                 synergy_score REAL NOT NULL,
@@ -69,9 +70,18 @@ class Storage:
                 msrp REAL DEFAULT 185.0,
                 run_units INTEGER DEFAULT 500,
                 gmv REAL DEFAULT 92500.0,
+                spec_json TEXT,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
             """)
+
+            # Auto-migrate existing deals table if columns are missing
+            cursor.execute("PRAGMA table_info(deals)")
+            existing_cols = [col["name"] for col in cursor.fetchall()]
+            if "title" not in existing_cols:
+                cursor.execute("ALTER TABLE deals ADD COLUMN title TEXT")
+            if "spec_json" not in existing_cols:
+                cursor.execute("ALTER TABLE deals ADD COLUMN spec_json TEXT")
             # Vector embeddings table
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS embeddings (
@@ -100,13 +110,27 @@ class Storage:
                 return json.loads(row["state_json"])
         return None
 
-    def save_deal(self, card_id: str, session_id: str, brand_name: str, category: str, affinity_multiplier: str, synergy_score: float, stage: str = "Discovered", msrp: float = 185.0, run_units: int = 500, gmv: float = 92500.0):
+    def save_deal(
+        self,
+        card_id: str,
+        session_id: str,
+        brand_name: str,
+        category: str,
+        affinity_multiplier: str,
+        synergy_score: float,
+        stage: str = "Discovered",
+        msrp: float = 185.0,
+        run_units: int = 500,
+        gmv: float = 92500.0,
+        title: Optional[str] = None,
+        spec_json: Optional[str] = None,
+    ):
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-            INSERT OR REPLACE INTO deals (card_id, session_id, brand_name, category, affinity_multiplier, synergy_score, stage, msrp, run_units, gmv, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-            """, (card_id, session_id, brand_name, category, affinity_multiplier, synergy_score, stage, msrp, run_units, gmv))
+            INSERT OR REPLACE INTO deals (card_id, session_id, brand_name, title, category, affinity_multiplier, synergy_score, stage, msrp, run_units, gmv, spec_json, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            """, (card_id, session_id, brand_name, title, category, affinity_multiplier, synergy_score, stage, msrp, run_units, gmv, spec_json))
             conn.commit()
 
     def get_deals(self, stage: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -117,7 +141,18 @@ class Storage:
             else:
                 cursor.execute("SELECT * FROM deals ORDER BY updated_at DESC")
             rows = cursor.fetchall()
-            return [dict(row) for row in rows]
+            deals = []
+            for row in rows:
+                d = dict(row)
+                if d.get("spec_json"):
+                    try:
+                        d["spec"] = json.loads(d["spec_json"])
+                    except Exception:
+                        d["spec"] = None
+                else:
+                    d["spec"] = None
+                deals.append(d)
+            return deals
 
     def update_deal_stage(self, card_id: str, new_stage: str) -> bool:
         with self._get_connection() as conn:
