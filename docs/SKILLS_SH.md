@@ -32,7 +32,7 @@ npx skills find qloo
 └── qloo-venture-pulse/
     ├── SKILL.md              # Main agent instruction & tool declaration file
     ├── schemas/
-    │   └── skills.json       # JSON Schema definitions for all 6 tool contracts
+    │   └── skills.json       # JSON Schema definitions for all 8 tool contracts
     └── references/
         └── qloo_endpoints.md # Reference guide for Qloo Taste Graph routes
 ```
@@ -43,17 +43,19 @@ npx skills find qloo
 
 When an AI agent (such as Antigravity, Claude Code, or Cursor) loads `.skills/qloo-venture-pulse/SKILL.md`, it gains the autonomous ability to:
 1. Parse creative media and aesthetic anchors from user prompts.
-2. Resolve entities against Qloo's Taste Graph.
-3. Compute cross-domain affinities between creators and brands.
-4. Synthesize limited-edition merchandise drops with verified commercial appeal.
-5. Export structured CRM cards and outreach pitch decks.
+2. Resolve entities against Qloo's 250M+ Taste Graph.
+3. Compute cross-domain affinities and negative anti-affinity guardrails between creators and brands.
+4. Run bidirectional brand counter-discovery to match lifestyle brands with micro-communities.
+5. Model unit economics, GMV, and creator royalties dynamically.
+6. Synthesize limited-edition merchandise drops with verified commercial appeal.
+7. Export structured CRM cards, outreach pitch decks, and Markdown strategy dossiers.
 
 ---
 
 ## 5. Publishing Checklist for `skills.sh`
 
 1. [x] Create valid `SKILL.md` with standard YAML frontmatter (`name`, `description`, `version`, `author`).
-2. [x] Provide concrete JSON input/output schemas for tool calls.
+2. [x] Provide concrete JSON input/output schemas for all 8 tool contracts.
 3. [x] Include sample inputs and deterministic fallback examples.
 4. [x] Commit to the public GitHub repository root.
 5. [x] Register on [skills.sh](https://www.skills.sh/) via GitHub release tag.

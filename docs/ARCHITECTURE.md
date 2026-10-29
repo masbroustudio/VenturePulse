@@ -1,17 +1,17 @@
 # Venture Pulse — Technical Architecture Specification
-**LangGraph State Machine, Supabase pgvector, Observability & Evaluation**
+**LangGraph State Machine, Adversarial Consensus Loop, Supabase pgvector & Observability**
 
 ---
 
 ## 1. System Overview & Core Paradigms
 
-Venture Pulse is built on four core architectural principles designed for the 2026 AI-native landscape:
+Venture Pulse is built on five core architectural principles designed for the 2026 AI-native landscape:
 
-1. **Deterministic Cultural Grounding:** Eliminates parametric LLM guesswork by querying Qloo's 600M+ entity graph (`hackathon.api.qloo.com`) before creative synthesis begins.
-2. **LangGraph Multi-Agent Deliberation:** Coordinates specialized adversarial sub-agents (Cultural Analyst, Brand Strategist, Creative Director) within a cyclic state graph that enforces consensus criteria.
-3. **Low-Latency Streaming Execution:** Streams agent reasoning tokens and tool invocations via Server-Sent Events (SSE) so users observe decisions in real time.
-4. **Supabase PostgreSQL + pgvector Persistence:** Persistent relational storage with vector embeddings for semantic brand similarity matching.
-5. **Observability & Evaluation:** Complete telemetry via **LangFuse** and quantitative evaluation scores via **DeepEval / Ragas**.
+1. **Deterministic Cultural Grounding:** Eliminates parametric LLM guesswork by querying Qloo's 250M+ entity Taste Graph (`hackathon.api.qloo.com`) before creative synthesis begins.
+2. **Adversarial 2-Cycle LangGraph Multi-Agent Deliberation:** Coordinates specialized adversarial sub-agents (Cultural Analyst, Brand Strategist, Creative Director) within a cyclic state graph that enforces strict consensus criteria ($\ge 85\%$). Cycle 1 features explicit critique and rejection of budget or brand-safety mismatches, driving Cycle 2 refinement with anti-affinity guardrails.
+3. **Bidirectional Orchestration:** Dynamically pivots between **Creator Mode** (Creator $\rightarrow$ Brands & Products) and **Brand Counter-Discovery Mode** (Brand $\rightarrow$ Untapped Subcultural Communities).
+4. **Interactive Unit Economics & HTML5 CRM Pipeline:** Real-time financial calculations (GMV, royalties, sponsor fees) coupled with persistent drag-and-drop Kanban state.
+5. **Observability, Vector Search & AI Evaluation:** Full telemetry via **LangFuse**, semantic similarity embeddings in **Supabase (PostgreSQL + pgvector)**, and quantitative quality benchmarks via **DeepEval / Ragas**.
 
 ---
 
@@ -20,7 +20,7 @@ Venture Pulse is built on four core architectural principles designed for the 20
 ```mermaid
 sequenceDiagram
     autonumber
-    actor User as Creator / Judge
+    actor User as Creator / Brand Evaluator
     participant UI as Next.js 15 Client (A24 Editorial UI)
     participant LG as LangGraph Council Orchestrator
     participant Qloo as Qloo Gateway (hackathon.api.qloo.com)
@@ -28,29 +28,34 @@ sequenceDiagram
     participant Supa as Supabase (PostgreSQL + pgvector)
     participant Fuse as LangFuse Observability
 
-    User->>UI: Submit Studio Intake Wizard (Anchors, Category, Targets)
+    User->>UI: Submit Studio Intake / Select Preset (Mode: Creator | Brand)
     UI->>LG: POST /api/debate/start (Session Payload)
     LG->>Fuse: Start Trace (Session ID, User Profile)
     
     rect rgb(240, 248, 255)
-        note over LG,Qloo: Phase 1: Entity Resolution & Taste Graph Exploration
+        note over LG,Qloo: Phase 1: Entity Resolution & Multi-Hop Taste Graph Traversal
         LG->>Qloo: search_entities(anchors) & find_tags()
-        Qloo-->>LG: Resolved Qloo IDs & Taxonomy Tags
-        LG->>Qloo: insights(resolvedIDs, targetCategories)
-        Qloo-->>LG: Ranked Entity Affinity Clusters (Multipliers, Overlaps)
+        Qloo-->>LG: Resolved Qloo URNs & Taxonomy Tags
+        LG->>Qloo: insights(resolvedIDs, targetCategories, excludedTags)
+        Qloo-->>LG: Ranked Entity Affinity Clusters (Multipliers, Multi-Hop Paths, Anti-Signals)
         LG->>Fuse: Log Tool: Qloo Insights & Latency
     end
 
     rect rgb(255, 245, 238)
-        note over LG,LLM: Phase 2: LangGraph Multi-Agent Council Debate (SSE Stream)
-        LG->>UI: Stream Event: Turn 1 (Cultural Analyst: Affinities)
-        LG->>LLM: Run Brand Strategist (Market Sizing & Brand Safety)
-        LLM-->>LG: Strategist Critique (Budget Tiers, Safety Check)
-        LG->>UI: Stream Event: Turn 2 (Brand Strategist: Critique)
-        LG->>LLM: Run Creative Director (Synthesize Product Collab)
-        LLM-->>LG: Director Concept (Packaging, Aesthetic, Drop Format)
-        LG->>UI: Stream Event: Turn 3 (Creative Director: Blueprint)
-        LG->>UI: Stream Event: Council Consensus Reached
+        note over LG,LLM: Phase 2: Adversarial Multi-Agent Debate (SSE Streaming)
+        LG->>UI: Stream Turn 1 (Cultural Analyst: Initial Candidates)
+        LG->>LLM: Run Brand Strategist (Market Sizing & Safety Audit)
+        LLM-->>LG: Strategist Rejection (Synergy 71% < 85% - Tier/Saturation Conflict)
+        LG->>UI: Stream Turn 2 (Brand Strategist: Cycle 1 Rejection Event)
+        note over LG,Qloo: Cycle 2 Loopback: Cultural Analyst applies anti-affinity guardrails
+        LG->>Qloo: insights(refinedFilter, excluded_tags)
+        Qloo-->>LG: Refined Shortlist (94% Synergy)
+        LG->>UI: Stream Turn 3 (Cultural Analyst: Cycle 2 Convergence)
+        User->>UI: (Optional) Inject Founder Constraint mid-debate
+        UI->>LG: POST /api/debate/inject-constraint
+        LG->>LLM: Run Creative Director (Synthesize Product Collab & Adapt Constraints)
+        LLM-->>LG: Director Concept (Packaging, Pricing, Unit Economics)
+        LG->>UI: Stream Turn 4 (Creative Director: Capsule Blueprint & Consensus Reached)
     end
 
     rect rgb(245, 255, 250)
@@ -59,39 +64,42 @@ sequenceDiagram
         LLM-->>LG: Vectors
         LG->>Supa: INSERT INTO brand_target_cards + pgvector embeddings
         Supa-->>LG: Persisted UUIDs
-        LG->>Fuse: End Trace (Token Usage, Latency, Eval Score)
-        LG-->>UI: Complete Session Payload (Cards, Pitches, Proof)
+        LG->>Fuse: End Trace (Token Usage, Latency, DeepEval Score)
+        LG-->>UI: Complete Session Payload (Cards, Pitches, Unit Economics)
     end
 
     User->>UI: Drag Card to "Pitch Ready" & Click "Dispatch to CRM"
-    UI->>LG: POST /api/dispatch (Card ID, Webhook Target)
+    UI->>LG: POST /api/dispatch (Card ID, Target Service)
     LG->>Supa: UPDATE brand_target_cards SET pipeline_stage = 'Dispatched'
-    LG-->>UI: Webhook Confirmation Log
+    LG-->>UI: Webhook Confirmation Log (200 OK)
 ```
 
 ---
 
-## 3. LangGraph Agent State Machine
+## 3. LangGraph Agent State Machine (Cyclic Consensus Loop)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> IntakeNode: Studio Wizard Submitted
-    IntakeNode --> QlooTasteNode: Query Qloo API (search & insights)
+    [*] --> IntakeNode: Studio / Brand Profile Submitted
+    IntakeNode --> QlooTasteNode: Query Qloo API (/v2/search & /v2/insights)
     
-    state "LangGraph Multi-Agent Loop" as CouncilGraph {
+    state "LangGraph Multi-Agent Consensus Loop" as CouncilGraph {
         QlooTasteNode --> AnalystNode: Cultural Analyst evaluates taste graph
-        AnalystNode --> StrategistNode: Brand Strategist checks feasibility & deal size
-        StrategistNode --> DirectorNode: Creative Director crafts product & pitch
+        AnalystNode --> StrategistNode: Brand Strategist checks feasibility & deal sizing
         
         state ConsensusDecision <<choice>>
-        DirectorNode --> ConsensusDecision
-        ConsensusDecision --> AnalystNode: Synergy < 85% (Iterate & re-evaluate)
-        ConsensusDecision --> EvaluationNode: Synergy >= 85% (Consensus reached)
+        StrategistNode --> ConsensusDecision
+        ConsensusDecision --> Cycle2Refinement: Synergy < 85% (Cycle 1 Conflict / Rejection)
+        Cycle2Refinement --> AnalystNode: Re-query Qloo with negative anti-affinity tags
+        
+        ConsensusDecision --> DirectorNode: Synergy >= 85% (Approved candidate shortlist)
+        DirectorNode --> HumanInterventionNode: Check for Founder constraints
+        HumanInterventionNode --> DirectorNode: Adapt BOM specs & pricing
     }
 
-    EvaluationNode --> DeepEvalNode: Run DeepEval / Ragas Groundedness Check
+    DirectorNode --> DeepEvalNode: Run DeepEval / Ragas Groundedness Benchmark
     DeepEvalNode --> SupabasePersistenceNode: Save Cards & Embeddings to Supabase
-    SupabasePersistenceNode --> KanbanReady: Stream Cards to Client UI
+    SupabasePersistenceNode --> KanbanReady: Populate Actionable CRM Board
     KanbanReady --> [*]
 ```
 
@@ -102,16 +110,17 @@ stateDiagram-v2
 ```mermaid
 flowchart TD
     subgraph Client["Next.js 15 Client Layer (Vercel)"]
-        Wizard["Studio Wizard\n(/components/wizard)"]
+        Wizard["Studio & Taste Graph Visualizer\n(/components/wizard)"]
         DebateStreamView["Council Debate Terminal\n(/components/debate)"]
         KanbanBoard["Brand CRM Board\n(/components/crm)"]
         ProofComparison["Side-by-Side Proof Modal\n(/components/proof)"]
+        UnitEconModal["Lookbook & Unit Economics\n(/components/lookbook)"]
     end
 
     subgraph ServerlessEdge["Next.js Route Handlers (Vercel Edge)"]
         DebateRoute["/api/debate/route.ts\n(SSE Streaming Handler)"]
         DispatchRoute["/api/dispatch/route.ts\n(Webhook Dispatcher)"]
-        ExportRoute["/api/export/route.ts\n(PDF / Markdown Compiler)"]
+        ExportRoute["/api/export/route.ts\n(Markdown Dossier Compiler)"]
     end
 
     subgraph Engine["LangGraph & Agent Engine (/lib/agent)"]
@@ -135,6 +144,7 @@ flowchart TD
     GraphOrchestrator --> LangFuseTrace
     DebateRoute -.->|SSE Stream| DebateStreamView
     DebateStreamView --> KanbanBoard
+    KanbanBoard --> UnitEconModal
     KanbanBoard -->|POST /api/dispatch| DispatchRoute
 ```
 
@@ -143,6 +153,7 @@ flowchart TD
 ## 5. Latency, Resilience & Fallback Strategy
 
 * **In-Memory Cache (LRU / 24-hour TTL):** All entity lookups and affinity results are hashed. Repeated lookups return in $< 5\text{ms}$.
-* **HTTP 429 Exponential Backoff:** Automatically retries transient rate-limit spikes with jittered exponential delay.
+* **HTTP 429 Exponential Backoff:** Automatically retries transient rate-limit spikes with jittered exponential delay ($500\text{ms}$, $1500\text{ms}$).
 * **HTTP 422 Strict Schema Handling:** Sanitizes payloads to prevent schema mismatch errors from Qloo's API.
-* **Pre-Seed Demonstration Cache:** 3 verified cultural profiles (*"Cyberpunk Indie Studio"*, *"Lo-Fi Botanical Podcast"*, *"Vintage Film Photographer"*) are locally cached for instant, zero-latency evaluation.
+* **Dual-Header Authentication:** Dispatches both `Authorization: Bearer <KEY>` and `X-Api-Key: <KEY>` to ensure seamless operation across hackathon proxies and direct production endpoints.
+* **High-Fidelity Pre-Seed Fallback:** 3 verified cultural profiles (*"Cyberpunk Indie Studio"*, *"Lo-Fi Botanical Podcast"*, *"Vintage Film Photographer"*) plus Brand Mode profiles ensure 100% uninterrupted judging uptime.

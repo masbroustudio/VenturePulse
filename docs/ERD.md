@@ -23,6 +23,7 @@ erDiagram
         string category
         text audience_summary
         string primary_vibe
+        string mode "creator | brand_counter_discovery"
         vector embedding "vector(1536) for semantic matching"
         timestamptz created_at
     }
@@ -32,16 +33,18 @@ erDiagram
         uuid creator_id FK
         string domain
         string entity_name
-        string qloo_entity_id
+        string qloo_urn
         float confidence_weight
     }
 
     DEBATE_SESSION {
         uuid id PK
         uuid creator_id FK
-        string status "running | consensus_reached | failed"
+        string status "running | cycle1_rejected | consensus_reached | failed"
         float overall_cultural_synergy_score
         int turns_count
+        int cycles_count
+        text human_constraints
         timestamptz started_at
         timestamptz completed_at
     }
@@ -50,6 +53,7 @@ erDiagram
         uuid id PK
         uuid session_id FK
         int turn_index
+        int cycle_index
         string agent_role "Cultural_Analyst | Brand_Strategist | Creative_Director"
         text thought_reasoning
         text message_content
@@ -66,6 +70,9 @@ erDiagram
         float qloo_affinity_score
         float demographic_overlap_pct
         string estimated_deal_tier
+        text multi_hop_path
+        text negative_signals
+        jsonb top_geographic_clusters
         vector embedding "vector(1536) for brand clustering"
         timestamptz updated_at
     }
@@ -77,7 +84,10 @@ erDiagram
         string format
         text aesthetic_description
         text packaging_spec
-        float target_retail_price
+        int edition_run_size
+        numeric target_retail_price
+        numeric gross_merchandise_value
+        float creator_royalty_split_pct
     }
 
     OUTREACH_PITCH {
@@ -88,6 +98,7 @@ erDiagram
         text data_grounding_paragraph
         text call_to_action
         text vanilla_llm_comparison
+        timestamptz created_at
     }
 
     DISPATCH_WEBHOOK_LOG {
@@ -103,8 +114,8 @@ erDiagram
     QLOO_ENTITY_SIGNAL {
         uuid id PK
         uuid brand_card_id FK
-        string source_entity_id
-        string target_entity_id
+        string source_entity_urn
+        string target_entity_urn
         float affinity_metric
         string cross_domain_path
     }
@@ -118,7 +129,7 @@ erDiagram
 -- Enable pgvector extension for semantic cultural embeddings
 CREATE EXTENSION IF NOT EXISTS vector;
 
--- Creator Profiles
+-- Creator / Brand Profiles
 CREATE TABLE creator_profiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
@@ -126,28 +137,31 @@ CREATE TABLE creator_profiles (
     category VARCHAR(100) NOT NULL,
     audience_summary TEXT,
     primary_vibe VARCHAR(255),
+    mode VARCHAR(50) DEFAULT 'creator', -- 'creator' or 'brand_counter_discovery'
     embedding VECTOR(1536),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Cultural Anchors declared by creators
+-- Cultural Anchors declared by creators or brands
 CREATE TABLE cultural_anchors (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creator_id UUID REFERENCES creator_profiles(id) ON DELETE CASCADE,
     domain VARCHAR(50) NOT NULL,
     entity_name VARCHAR(255) NOT NULL,
-    qloo_entity_id VARCHAR(100),
+    qloo_urn VARCHAR(150),
     confidence_weight FLOAT DEFAULT 1.0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Debate Sessions
+-- Multi-Agent Debate Sessions
 CREATE TABLE debate_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     creator_id UUID REFERENCES creator_profiles(id) ON DELETE CASCADE,
     status VARCHAR(50) DEFAULT 'running',
     overall_cultural_synergy_score FLOAT,
     turns_count INT DEFAULT 0,
+    cycles_count INT DEFAULT 1,
+    human_constraints TEXT,
     started_at TIMESTAMPTZ DEFAULT NOW(),
     completed_at TIMESTAMPTZ
 );
@@ -157,6 +171,7 @@ CREATE TABLE debate_turns (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id UUID REFERENCES debate_sessions(id) ON DELETE CASCADE,
     turn_index INT NOT NULL,
+    cycle_index INT DEFAULT 1,
     agent_role VARCHAR(100) NOT NULL,
     thought_reasoning TEXT,
     message_content TEXT,
@@ -174,11 +189,14 @@ CREATE TABLE brand_target_cards (
     qloo_affinity_score FLOAT NOT NULL,
     demographic_overlap_pct FLOAT,
     estimated_deal_tier VARCHAR(100),
+    multi_hop_path TEXT,
+    negative_signals TEXT,
+    top_geographic_clusters JSONB,
     embedding VECTOR(1536),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Physical Collaboration Concepts
+-- Physical Collaboration Concepts & Unit Economics
 CREATE TABLE collab_product_concepts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     brand_card_id UUID REFERENCES brand_target_cards(id) ON DELETE CASCADE,
@@ -186,7 +204,10 @@ CREATE TABLE collab_product_concepts (
     format VARCHAR(100),
     aesthetic_description TEXT,
     packaging_spec TEXT,
-    target_retail_price NUMERIC(10, 2),
+    edition_run_size INT DEFAULT 500,
+    target_retail_price NUMERIC(10, 2) NOT NULL,
+    gross_merchandise_value NUMERIC(12, 2),
+    creator_royalty_split_pct FLOAT DEFAULT 0.18,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -223,14 +244,15 @@ CREATE INDEX ON brand_target_cards USING ivfflat (embedding vector_cosine_ops) W
 ## 3. TypeScript Interfaces
 
 ```typescript
-export type CreatorCategory = 'Gaming' | 'Podcast' | 'Music' | 'Art' | 'Tech' | 'Lifestyle';
+export type CreatorCategory = 'Gaming' | 'Podcast' | 'Music' | 'Art' | 'Tech' | 'Living' | 'Lifestyle';
+export type WorkflowMode = 'creator' | 'brand_counter_discovery';
 
 export interface CulturalAnchor {
   id: string;
   creatorId: string;
   domain: 'music' | 'film' | 'fashion' | 'dining' | 'literature' | 'aesthetic';
   entityName: string;
-  qlooEntityId?: string;
+  qlooUrn?: string;
   confidenceWeight: number; // 0.0 - 1.0
 }
 
@@ -241,6 +263,7 @@ export interface CreatorProfile {
   category: CreatorCategory;
   audienceSummary: string;
   primaryVibe: string;
+  mode: WorkflowMode;
   anchors: CulturalAnchor[];
   embedding?: number[];
   createdAt: string;
@@ -252,6 +275,7 @@ export interface DebateTurn {
   id: string;
   sessionId: string;
   turnIndex: number;
+  cycleIndex: number;
   agentRole: AgentRole;
   thoughtReasoning: string;
   messageContent: string;
@@ -266,15 +290,17 @@ export interface DebateTurn {
 export interface DebateSession {
   id: string;
   creatorId: string;
-  status: 'idle' | 'running' | 'consensus_reached' | 'failed';
+  status: 'idle' | 'running' | 'cycle1_rejected' | 'consensus_reached' | 'failed';
   overallCulturalSynergyScore: number;
+  cyclesCount: number;
+  humanConstraints?: string;
   turns: DebateTurn[];
   startedAt: string;
   completedAt?: string;
 }
 
-export type PipelineStage = 'Discovered' | 'Vetted' | 'Pitch_Ready' | 'Dispatched';
-export type DealTier = 'Micro ($2k-$5k)' | 'Mid ($5k-$20k)' | 'High ($20k-$50k+)';
+export type PipelineStage = 'Discovered' | 'Vetted' | 'Pitch Ready' | 'Dispatched';
+export type DealTier = 'Micro ($2k-$5k)' | 'Mid ($5k-$20k)' | 'High ($20k-$50k+)' | 'Enterprise ($50k+)';
 
 export interface CollabProductConcept {
   id: string;
@@ -283,7 +309,10 @@ export interface CollabProductConcept {
   format: 'Limited Capsule' | 'Co-Branded Packaging' | 'Hardware Variant' | 'Experiential Drop';
   aestheticDescription: string;
   packagingSpec: string;
+  editionRunSize: number;
   targetRetailPrice: number;
+  grossMerchandiseValue: number;
+  creatorRoyaltySplitPct: number;
 }
 
 export interface OutreachPitch {
@@ -300,11 +329,14 @@ export interface BrandTargetCard {
   id: string;
   sessionId: string;
   brandName: string;
-  brandDomain: 'Apparel' | 'Beverage' | 'Tech' | 'Living' | 'Cosmetics';
+  brandDomain: 'apparel' | 'beverage' | 'tech' | 'living' | 'lifestyle';
   pipelineStage: PipelineStage;
   qlooAffinityScore: number;
   demographicOverlapPct: number;
   estimatedDealTier: DealTier;
+  multiHopPath: string;
+  negativeSignals: string;
+  topGeographicClusters: Array<{ city: string; lift: number }>;
   embedding?: number[];
   productConcept: CollabProductConcept;
   pitch: OutreachPitch;

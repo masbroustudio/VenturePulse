@@ -1,15 +1,17 @@
 # Venture Pulse — Interactive UI Prototype Guide
 **High-End Editorial Luxury Prototype (`design/index.html`)**
 
-This folder contains a fully interactive, self-contained HTML/CSS/JS prototype of **Venture Pulse** built with:
-- **Editorial Paper Light Theme (Default):** Warm gallery paper (`#fbfbfa`), pure white cards (`#ffffff`), deep ink typography (`#09090b`), hairline borders (`#e4e4e7`), and warm cultural terracotta (`#ea580c`) & gold (`#d97706`) accents.
-- **Dark Studio Mode:** Seamless instant toggle with local storage persistence.
-- **Typography:** Google Fonts `Instrument Serif` (editorial italic display) + `Inter` (body) + `JetBrains Mono` (telemetry/code).
-- **Interactive SVG Taste Graph Visualizer:** Real-time cross-domain mapping connecting creator anchors to high-affinity brand partners.
-- **LangGraph Visual DAG:** Step-by-step state machine progress visualization.
-- **DeepEval & Ragas Benchmark Lab:** Quantitative evaluation metrics comparing Vanilla LLM vs. Qloo Grounding.
-- **LangFuse & Supabase Telemetry Drawer:** Live execution trace latency, token costs, and vector cosine similarities.
-- **Mobile-Responsive First:** Fluid layout scaling smoothly from smartphone screens to ultra-wide desktop monitors.
+This folder contains a fully interactive, reactive, self-contained HTML/CSS/JS prototype of **Venture Pulse** built with:
+- **Swiss Editorial Brutalist Grid (Benchmark 1):** Exposed 1px hairline dividers (`#e4e4e7` / `#27272a`), indexed figure labels (`FIG 1.1`, `FIG 1.2`, `FIG 2.1`), and high-contrast typography (`Instrument Serif` display + `Inter` body + `JetBrains Mono` telemetry).
+- **Force-Directed Multi-Hop Ego Graph (Benchmark 2):** 3-ring concentric SVG graph (Inner Ego Center $\rightarrow$ Mid Latent Taste Tags $\rightarrow$ Outer Brand Targets) with dynamic path tracing and node dimming on hover.
+- **Tokenized Entity Pills & Confidence Weight Sliders (Benchmark 3):** Step 2 chips displaying verified Qloo URN badges (`✓ QLOO: #urn:...`) with clickable popovers for real-time `0.0–1.0` weight tuning and an inline `+ Resolve URN` autocomplete.
+- **Cyclic Agent Deliberation Stream & Rejection Loop (Benchmark 4):** Animated horizontal DAG, Cycle 1 conflict rejection (`Synergy 71% < 85% Threshold`), Cycle 2 convergence (94% synergy), collapsible thought reasoning & tool call inspectors, and a live Founder Intervention Bar.
+- **Tactile Deal Desk & Radial Gauges (Benchmark 5):** True HTML5 drag-and-drop between stages (`Discovered`, `Vetted`, `Pitch Ready`, `Dispatched`), active domain filters, SVG radial affinity dials (`⚡ 7.8x`), and real-time financial pipeline recalculations.
+- **Interactive Blueprint & Swatch Spread (Benchmark 6):** Lookbook modal featuring technical vector blueprints (chore coat, mechanical keyboard, matcha can, pocket synth, or architectural sconce), serialized stamp `EDITION 001/500`, clickable Pantone/material swatches, and live Edition Run / Retail Price sliders calculating GMV and 18% Creator Royalties.
+- **LMSYS Side-by-Side Diff Arena (Benchmark 7):** Model A (Vanilla LLM) vs Model B (Venture Pulse) voting interface with DeepEval scorecards (Faithfulness: 96.2% vs 34.1%, Groundedness: 98.4% vs 18.0%, Hallucination Resistance: 98.0% vs 22.0%).
+- **Multi-Track Preset Dock (Benchmark 8):** 3 Creator Studios (*Neon Void*, *Botanical Frequencies*, *Analog Nostalgia*) plus **Lumière Spatial** (Architectural Lighting & Interior Mood Concierge — solving the electrician/lighting prompt from `ABOUT_CHALLENGE.md`) and Bidirectional Mode.
+- **Chronological Span Waterfall (Benchmark 9):** Gantt-style timeline showing microsecond execution spans, 3-way Cache Mode toggle (LRU Cache, Live API, Circuit Breaker Fallback), and pgvector cosine similarity bars.
+- **`⌘K` Command Palette & `skills.sh` Modal (Benchmark 10):** Keyboard shortcut `⌘K` / `Ctrl+K` with fuzzy action filtering, `skills.sh` one-click CLI copy (`npx skills add venture-pulse/qloo-skill`), and real `.md` file download.
 
 ---
 
@@ -31,50 +33,41 @@ Simply navigate to `C:\dev\QlooAgent\design\index.html` in File Explorer and dou
 
 | Key | Action |
 | :--- | :--- |
-| `T` | Toggle **Light Theme** $\leftrightarrow$ **Dark Studio Theme** |
-| `1` | Switch to **1. Studio & Taste Graph** view |
+| `⌘K` / `Ctrl+K` | Open the **`⌘K` Quick Command Palette** |
+| `T` | Toggle **Light Paper Theme** $\leftrightarrow$ **Dark Studio Theme** |
+| `B` | Toggle **Creator Mode** $\leftrightarrow$ **Brand Counter-Discovery Mode** |
+| `1` | Switch to **1. Studio & Ego Graph** view |
 | `2` | Switch to **2. LangGraph Council Debate** view |
 | `3` | Switch to **3. Brand CRM Pipeline** view |
-| `ESC` | Close any open modal (Lookbook, Proof Lab, or Telemetry Drawer) |
+| `ESC` | Close any open modal (Lookbook, Arena, skills.sh, Command Palette, or Drawer) |
 
 ---
 
 ## 🧭 Interactive Screens & Features to Test
 
-1. **Top Global Navigation:**
-   - Click the **"Proof Lab"** button to open the DeepEval Grounding Benchmark modal.
-   - Click the **"⚡ Traces"** button to open the LangFuse & Supabase Telemetry drawer.
-   - Click the **🌙 / ☀️** icon (or press `T`) to toggle between Light Paper and Dark Studio themes.
-
-2. **Screen 1: Studio Intake & Taste Graph (`#view-wizard`)**
-   - Click any of the **3 Evaluator Presets** (*Cyberpunk Gaming*, *Ambient Wellness*, *Analog 35mm*) to instantly auto-fill the form with aesthetic and cultural anchors.
-   - Inspect the **Interactive SVG Taste Graph Canvas**: Click on any node (*Acne Studios*, *Keychron*, *Matcha Kari*, *Teenage Engineering*) to inspect cosine distance and compatibility metrics.
-   - Click **"Launch LangGraph Multi-Agent Deliberation"**.
-
-3. **Screen 2: LangGraph Council & Live Telemetry (`#view-debate`)**
-   - Inspect the **LangGraph Visual DAG** showing active step nodes.
-   - Watch the simulated dialogue between **Cultural Analyst** (Qloo 600M+ Taste Graph), **Brand Strategist** (market feasibility & sizing), and **Creative Director** (physical concept & packaging).
-   - Click **"Fast-Forward to Consensus"** to jump to the consensus banner (94% synergy).
-   - Click **"Enter Brand CRM Board"**.
-
-4. **Screen 3: Brand CRM Pipeline (`#view-kanban`)**
-   - Metric summary chips ($48,500 total pipeline value, 7.4x avg affinity, 98/100 safety).
-   - Filter buttons (All, Apparel, Tech, Beverage).
-   - 4 Kanban columns (**Discovered**, **Vetted**, **Pitch Ready**, and **Dispatched**).
-   - Click any card to open the **Editorial Lookbook & Contract Term Sheet Modal**.
-
-5. **Modal 1: Editorial Lookbook & Contract Term Sheet (`#modal-poster`)**
-   - Magazine-grade double-page spread.
-   - Left page: Limited-edition drop poster, packaging specs, and retail pricing.
-   - Right page: Commercial deal term sheet ($14,500 + 18% royalty) and personalized cold outreach pitch letter with empirical Qloo citations.
-   - Click **"Copy Pitch Copy"** or **"Dispatch to CRM"** (triggers simulated HubSpot webhook).
-
-6. **Modal 2: DeepEval & Ragas Benchmark Lab (`#modal-proof`)**
-   - Quantitative evaluation scorecard:
-     - **Faithfulness Score:** 96.2% vs. 34.1%
-     - **Cultural Groundedness:** 98.4% vs. 18.0%
-     - **Hallucination Resistance:** 98.0% vs. 22.0%
-   - Side-by-side prompt breakdown proving why generic LLMs fail at cultural merchandising.
-
-7. **Drawer 3: LangFuse & Supabase Telemetry Drawer (`#drawer-telemetry`)**
-   - Live execution trace tree with step latencies (482 ms), token costs ($0.0018), Supabase `pgvector` cosine similarity metrics, and Qloo cache hits.
+1. **Preset Dock (4 Presets):**
+   - Click **Lumière Spatial** to see how Venture Pulse addresses the `ABOUT_CHALLENGE.md` lateral prompt for architectural room lighting, acoustic mood, and custom alabaster fixtures (Flos, Artemide).
+   - Test **Neon Void Studio**, **Botanical Frequencies**, or **Analog Nostalgia**.
+2. **Tokenized Entity Chips:**
+   - Click on any chip (e.g. `Kavinsky` or `Brian Eno`) to open the latent weight popover slider and drag its weight from `0.1` to `1.0`. Watch the SVG graph update live.
+   - Type a new anchor in the `+ Add anchor` box (e.g. `Bauhaus`) and click `+ Resolve URN`.
+3. **Multi-Hop Path Tracing:**
+   - Hover your mouse over any outer brand node in the SVG Ego Graph (e.g. `Acne Studios` or `Flos Lighting`). Notice how unrelated nodes dim while the exact multi-hop path illuminates.
+4. **Adversarial Deliberation Stream:**
+   - Click **Launch Cyclic LangGraph Deliberation** to watch Turn 1 stream, Turn 2 show the Cycle 1 conflict rejection badge (`Synergy 71% < 85%`), and Cycle 2 converge at 94%.
+   - Type into the **Founder Intervention Bar** to inject constraints into the Creative Director's spec.
+5. **HTML5 Drag-and-Drop Deal Desk:**
+   - Drag cards between `Discovered`, `Vetted`, `Pitch Ready`, and `Dispatched`.
+   - Watch the top **Pipeline Value** and **Average Affinity** recalculate instantly.
+6. **Lookbook Modal & Material Swatches:**
+   - Click any card to inspect the technical CAD blueprint and click the **Material Swatches** to reveal fabric provenance and BOM details.
+   - Drag the **Edition Run** and **Retail Price** sliders to compute GMV and 18% Creator Royalties live.
+7. **LMSYS Side-by-Side Proof Arena:**
+   - Click **Proof Lab** to inspect the LMSYS blind comparison between Model A (Vanilla LLM) and Model B (Venture Pulse) and vote.
+8. **Telemetry Waterfall & Cache Simulator:**
+   - Click **⚡ Traces** to view the Gantt span waterfall and toggle between `LRU Cache`, `Live API`, and `Fallback`.
+9. **`⌘K` Command Palette & `skills.sh`:**
+   - Press `⌘K` or click the header bar to trigger quick actions.
+   - Click **📦 skills.sh** to copy the CLI install command.
+10. **Real Markdown Export:**
+    - Click **↓ Export** to download a formatted `.md` collaboration dossier.

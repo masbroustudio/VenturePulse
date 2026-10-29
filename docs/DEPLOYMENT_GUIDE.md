@@ -13,7 +13,7 @@
 3. Under **Build and Output Settings**, keep defaults (Next.js automatically detected).
 4. Under **Environment Variables**, add:
    - `QLOO_API_KEY`: Your active Qloo API key
-   - `QLOO_API_BASE_URL`: `https://api.qloo.com`
+   - `QLOO_API_BASE_URL`: `https://hackathon.api.qloo.com` (or `https://api.qloo.com`)
    - `AI_PROVIDER`: `google` (or `openai` / `sumopod`)
    - `GEMINI_API_KEY`: Your Gemini API key (if using `google`)
    - `OPENAI_API_KEY`: Your OpenAI or SumoPod API key (if using `openai` or `sumopod`)
@@ -39,7 +39,7 @@ vercel --prod
 | Variable | Required? | Production Value / Description |
 | :--- | :--- | :--- |
 | `QLOO_API_KEY` | **Yes** | Your Qloo Cultural AI API token |
-| `QLOO_API_BASE_URL` | No | Default: `https://api.qloo.com` |
+| `QLOO_API_BASE_URL` | No | Default: `https://hackathon.api.qloo.com` |
 | `AI_PROVIDER` | **Yes** | `google`, `openai`, or `sumopod` |
 | `GEMINI_API_KEY` | Conditional | Required if `AI_PROVIDER=google` |
 | `OPENAI_API_KEY` | Conditional | Required if `AI_PROVIDER=openai` or `sumopod` |
@@ -51,9 +51,12 @@ vercel --prod
 ## 3. Post-Deployment Smoke Test Checklist
 
 Once the production deployment finishes, verify:
-- [ ] **Home Page Loads:** High-end editorial styling renders properly with `Instrument Serif` and `Geist Sans`.
-- [ ] **Studio Wizard Presets:** Clicking any sample preset fills the form immediately.
-- [ ] **Council Debate Streams:** SSE stream connects and displays the multi-agent dialogue in real time.
-- [ ] **Kanban Board Drag & Drop:** Cards drag between stages without lag.
-- [ ] **Proof Engine Modal:** Renders the side-by-side comparison cleanly on both mobile and desktop.
-- [ ] **Webhook Dispatch:** Dispatches successfully with a 200 HTTP log.
+- [ ] **Home Page Loads:** High-end editorial styling renders properly with `Instrument Serif` and `Inter`.
+- [ ] **Studio Wizard Presets:** Clicking any sample preset updates the SVG graph, debate, and CRM cards reactively.
+- [ ] **Council Debate Streams:** Paced multi-agent dialogue displays Cycle 1 rejection and Cycle 2 consensus in real time.
+- [ ] **Founder Intervention Bar:** Injects constraints into the debate stream.
+- [ ] **Kanban Board Drag & Drop:** Cards drag smoothly between columns and recalculate total pipeline value.
+- [ ] **Unit Economics Slider:** Lookbook modal recalculates GMV and royalty split live.
+- [ ] **Markdown Export:** Generates and downloads the strategy dossier `.md` file.
+- [ ] **Bidirectional Mode:** Toggles cleanly between Creator Mode and Brand Counter-Discovery Mode.
+- [ ] **Proof Engine Modal:** Renders the DeepEval side-by-side benchmark cleanly on all screen sizes.

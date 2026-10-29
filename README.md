@@ -1,65 +1,44 @@
 # ⚡ Venture Pulse
-### Autonomous Cultural Intelligence & Brand Collaboration Agent for Creators & Indie Studios
+### Autonomous Subcultural Arbitrage & Co-Creation Engine for Creators, Studios & Brands
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](file:///C:/dev/QlooAgent/LICENSE)
-[![Framework: Next.js 14](https://img.shields.io/badge/Framework-Next.js%2014%20(App%20Router)-black.svg)](https://nextjs.org/)
-[![AI Engine: Vercel AI SDK](https://img.shields.io/badge/AI%20Engine-Vercel%20AI%20SDK-purple.svg)](https://sdk.vercel.ai/)
-[![Cultural Intelligence: Qloo](https://img.shields.io/badge/Cultural%20AI-Qloo%20Taste%20Graph-orange.svg)](https://qloo.com)
+[![Framework: Next.js 15](https://img.shields.io/badge/Framework-Next.js%2015%20(App%20Router)-black.svg)](https://nextjs.org/)
+[![AI Engine: Vercel AI SDK Core](https://img.shields.io/badge/AI%20Engine-Vercel%20AI%20SDK%20Core-purple.svg)](https://sdk.vercel.ai/)
+[![Cultural Intelligence: Qloo](https://img.shields.io/badge/Cultural%20AI-Qloo%20250M%2B%20Taste%20Graph-orange.svg)](https://qloo.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Style-Tailwind%20CSS-38bdf8.svg)](https://tailwindcss.com/)
 
 > **Qloo Agentic Hackathon 2026 Submission**  
-> *Transforming cultural taste into actionable commercial partnerships and merchandise collaborations with zero generic hallucinations.*
+> *Transforming cultural taste into high-margin physical merchandise collaborations, unit economics models, and verified brand partnerships with zero generic hallucinations.*
 
 ---
 
 ## 🌟 The Vision: Eliminating AI's "Cultural Blindness"
 
-Modern AI agents can code, reason, and write persuasive prose, but when asked what brand to partner with or what merchandise people will actually buy, **they are guessing**. Standard LLMs hallucinate generic clichés:
-* *"Sell logo coffee mugs, t-shirts, and stickers."*
-* *"Pitch generic sponsors like VPNs, mattress companies, and meal kits."*
+Modern AI agents can code, reason, and write persuasive prose, but when asked what brand to partner with or what merchandise an audience will actually buy, **they are guessing**. Standard LLMs default to bland, generic clichés:
+* *"Sell logo coffee mugs, polyester t-shirts, and stickers."*
+* *"Pitch generic sponsors like VPNs, mattress companies, and energy drinks."*
 
-These recommendations fail because they ignore the authentic, multi-dimensional subcultures of modern fanbases.
+This causes **monetization fatigue** — creators and indie studios leave 80%+ of potential partnership revenue on the table because they only pitch obvious, saturated sponsors rather than high-margin **cross-domain lifestyle brands** that their community secretly loves.
 
-**Venture Pulse fixes this.** Powered by **Qloo’s 250M+ entity Taste Graph**, Venture Pulse gives autonomous agents real cultural grounding. It bridges a creator's artistic DNA (cinema, indie music, fashion, literary aesthetics) to mathematically verified consumer brand affinities, turning cultural alignment into high-converting brand collaborations and physical merchandise concepts.
+**Venture Pulse fixes this.** Powered by **Qloo’s 250M+ entity Taste Graph** (spanning music, cinema, dining, fashion, literature, and living aesthetics with 100T+ signals), Venture Pulse gives autonomous agents empirical cultural grounding. It bridges creative artistic DNA to mathematically verified brand affinities, turning cultural alignment into high-converting co-branded physical drops.
 
 ---
 
-## 🚀 Key Features
+## 🚀 The 10 Interface Benchmarks & Key Features
 
-```mermaid
-flowchart LR
-    A["1. Studio Intake Wizard\n(Category + Aesthetic Anchors)"] --> B["2. Multi-Agent Council Debate\n(Analyst vs. Strategist vs. Director)"]
-    B --> C["3. Brand CRM Kanban Board\n(Targets, Sizing, Concepts, Pitches)"]
-    C --> D["4. Proof Engine\n(Qloo Grounded vs. Vanilla LLM)"]
-    C --> E["5. Autonomous Webhook Dispatch\n(Sync to HubSpot / Notion / API)"]
-```
-
-### 1. 3-Step Guided Studio Wizard
-Creators and hackathon judges can enter a project profile in seconds or choose from 3 instant pre-seed archetypes:
-* **The Neon Void Studio:** Cyberpunk synthwave game studio.
-* **Botanical Frequencies:** Lo-fi ambient wellness podcast.
-* **Analog Nostalgia:** 35mm film photography and vintage vinyl creator.
-
-### 2. Multi-Agent Council Debate
-Watch 3 specialized sub-agents deliberate in real time via live Server-Sent Events (SSE):
-* 🕵️ **Cultural Analyst:** Traverses Qloo's Taste Graph to calculate empirical cross-domain affinity scores.
-* 📈 **Brand Strategist:** Evaluates market feasibility, deal size tiers ($2k–$50k+), and brand safety.
-* 🎨 **Creative Director:** Designs the physical collaboration product, limited-edition drop mechanics, and packaging aesthetics.
-
-### 3. Actionable Brand CRM Kanban Board
-Generated partnership targets populate an interactive, drag-and-drop Kanban board:
-* **Discovered $\rightarrow$ Vetted $\rightarrow$ Pitch Ready $\rightarrow$ Dispatched**
-* Complete with target deal sizing, empirical affinity multipliers (e.g. *7.8× baseline*), custom product concepts, and editable outreach pitch letters.
-
-### 4. Interactive "Proof Engine" (Why Qloo Matters)
-Directly addresses the hackathon's #1 judging criteria: *"If your submission works without Qloo, you're building the wrong thing."*
-A side-by-side split screen compares:
-* **Vanilla LLM:** Superficial, cliché merchandise and generic sponsor guesses.
-* **Venture Pulse (Qloo Grounded):** Deep subcultural affinities backed by empirical entity graphs and authentic crossover rationale.
-
-### 5. Autonomous CRM Webhook Dispatch
-With one click, the agent dispatches the finalized collaboration brief and pitch draft to external webhooks (HubSpot, Notion, or custom CRM endpoints).
+| # | Benchmark | Primary Implementation in Venture Pulse |
+| :---: | :--- | :--- |
+| **1** | **Swiss Editorial Brutalist Grid** | Flush 1px hairline bento grids (`#e4e4e7` / `#27272a`) with indexed figure labels (`FIG 1.1`, `FIG 1.2`). |
+| **2** | **Force-Directed Multi-Hop Ego Graph** | 3-ring concentric SVG graph with dynamic hover path tracing (`Ego Center` $\rightarrow$ `Latent Tag` $\rightarrow$ `Brand Target`) and non-connected node dimming. |
+| **3** | **Tokenized Entity Pills & Weight Sliders** | Interactive entity chips showing verified Qloo URN badges (`✓ QLOO: #urn:...`), weight popover sliders (`0.0–1.0w`), and inline `+ Resolve URN` autocomplete. |
+| **4** | **Cyclic Agent Deliberation Stream** | Live streaming LangGraph council with Cycle 1 conflict rejection (`Synergy 71% < 85%`), Cycle 2 refinement (94% consensus), collapsible thought traces, and a Founder Intervention Bar. |
+| **5** | **Tactile Deal Desk & Radial Gauges** | Attio/Linear-style Kanban CRM with SVG radial affinity dials (`⚡ 7.8x`), HTML5 drag-and-drop, domain filters, and real-time financial recalculations. |
+| **6** | **Interactive Blueprint & Swatch Spread** | Magazine lookbook with technical vector blueprints, serialized stamp (`EDITION 001/500`), clickable material/Pantone swatches, and live GMV / 18% Creator Royalty sliders. |
+| **7** | **LMSYS Side-by-Side Diff Arena** | Contextual blind comparison arena between Model A (Vanilla LLM clichés) and Model B (Venture Pulse) with DeepEval scorecards (98.4% groundedness). |
+| **8** | **Lateral Domain Persona Switcher** | Multi-track preset dock with 3 Creator Studios plus **Lumière Spatial** (Architectural Lighting & Room Mood Concierge — solving the electrician/lighting prompt from `ABOUT_CHALLENGE.md`) and Bidirectional Mode. |
+| **9** | **Chronological Span Waterfall** | Gantt-style telemetry waterfall showing microsecond execution spans, 3-way Cache Mode toggle (`LRU Cache <5ms` / `Live Gateway` / `Fallback`), and pgvector cosine similarity bars. |
+| **10** | **`⌘K` Command Palette & skills.sh** | `⌘K` / `Ctrl+K` command palette, `skills.sh` registry package modal (`npx skills add venture-pulse/qloo-skill`), and real Markdown dossier download. |
 
 ---
 
@@ -67,13 +46,14 @@ With one click, the agent dispatches the finalized collaboration brief and pitch
 
 | Layer | Technology |
 | :--- | :--- |
-| **Frontend Framework** | Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons |
-| **Agentic Orchestrator** | Vercel AI SDK Core with Multi-Agent Council State Machine |
-| **Cultural Intelligence** | Qloo Taste AI™ API (250M+ Entity Cross-Domain Taste Graph) |
-| **LLM Inference** | Multi-Provider Gateway: Google Gemini 1.5 Pro, OpenAI GPT-4o, and SumoPod / OpenAI-compatible endpoints |
-| **Storage & Persistence** | Frictionless Client-First Hybrid (IndexedDB/LocalStorage) with Prisma/PostgreSQL schema |
-| **Tool Protocol** | 6-Skill Modular Agent Protocol validated via Zod Schemas |
-| **Deployment** | Vercel Edge Serverless Deployment |
+| **Frontend Framework** | Next.js 15 (App Router), TypeScript, Tailwind CSS, `Instrument Serif` & `JetBrains Mono` |
+| **Agentic Orchestrator** | LangGraph Cyclic State Machine with Vercel AI SDK Core (SSE Streaming) |
+| **Cultural Intelligence** | Qloo Taste AI™ API (250M+ Entity Taste Graph, dual-header authentication) |
+| **LLM Inference** | Multi-Provider Gateway: Google Gemini 2.0 Flash / 1.5 Pro, OpenAI GPT-4o, and SumoPod |
+| **Storage & Persistence** | Zero-friction client-first hybrid storage backed by Supabase (PostgreSQL + `pgvector`) |
+| **Tool Protocol** | 8-Skill Modular Agent Protocol validated via Zod Schemas |
+| **Ecosystem Package** | skills.sh Open Registry Package (`npx skills add venture-pulse/qloo-skill`) |
+| **Deployment** | Vercel Serverless Edge Deployment |
 
 ---
 
@@ -81,25 +61,29 @@ With one click, the agent dispatches the finalized collaboration brief and pitch
 
 Explore the comprehensive technical specifications in the `docs/` folder:
 
-* 📘 [MASTERPLAN.md](file:///C:/dev/QlooAgent/docs/MASTERPLAN.md) — Comprehensive Masterplan, Executive Strategy, and Roadmap
-* 📐 [ARCHITECTURE.md](file:///C:/dev/QlooAgent/docs/ARCHITECTURE.md) — Detailed System Architecture, State Machine, and Sequence Diagrams
-* 🗄️ [ERD.md](file:///C:/dev/QlooAgent/docs/ERD.md) — Entity Relationship Diagram, Data Models, and TypeScript Interfaces
-* 🤖 [AGENT_SKILLS.md](file:///C:/dev/QlooAgent/docs/AGENT_SKILLS.md) — The 6-Agent Skill Protocols and Zod Tool Schemas
-* 🔌 [API_INTEGRATION.md](file:///C:/dev/QlooAgent/docs/API_INTEGRATION.md) — Qloo API Client, Caching, and Multi-Provider LLM Gateway
+* 📘 [MASTERPLAN.md](file:///C:/dev/QlooAgent/docs/MASTERPLAN.md) — Executive Masterplan, Problem Statement, and Architecture Roadmap
+* 📐 [ARCHITECTURE.md](file:///C:/dev/QlooAgent/docs/ARCHITECTURE.md) — System Architecture, 2-Cycle LangGraph State Machine, and Sequence Diagrams
+* 🗄️ [ERD.md](file:///C:/dev/QlooAgent/docs/ERD.md) — Entity Relationship Diagram, PostgreSQL + pgvector Migration, and TypeScript Interfaces
+* 🤖 [AGENT_SKILLS.md](file:///C:/dev/QlooAgent/docs/AGENT_SKILLS.md) — The 8-Agent Skill Protocols and Zod Tool Schemas
+* 🔌 [API_INTEGRATION.md](file:///C:/dev/QlooAgent/docs/API_INTEGRATION.md) — Qloo Gateway Integration, Dual-Header Auth, and Multi-Provider LLM Setup
+* 🎨 [UI_DESIGN_SYSTEM.md](file:///C:/dev/QlooAgent/docs/UI_DESIGN_SYSTEM.md) — Editorial Luxury Design Tokens, Typography, and Keyframe Animations
+* 🏆 [JUDGING_WALKTHROUGH.md](file:///C:/dev/QlooAgent/docs/JUDGING_WALKTHROUGH.md) — 3-Minute Step-by-Step Evaluation Script for Judges
+* 📝 [DEVPOST_SUBMISSION.md](file:///C:/dev/QlooAgent/docs/DEVPOST_SUBMISSION.md) — Official Devpost Submission Narrative & Benchmark Results
+* 📦 [SKILLS_SH.md](file:///C:/dev/QlooAgent/docs/SKILLS_SH.md) — skills.sh Open Registry Package Standard
 * 🔒 [SECURITY.md](file:///C:/dev/QlooAgent/docs/SECURITY.md) — Security Architecture, Key Isolation, and Privacy Safeguards
+* 🚀 [DEPLOYMENT_GUIDE.md](file:///C:/dev/QlooAgent/docs/DEPLOYMENT_GUIDE.md) — Production Operations & Vercel Deployment Guide
 
 ---
 
 ## ⚡ Quick Start / Local Setup
 
-### Prerequisites
-* Node.js 18.17+ or Node.js 20+
-* npm, pnpm, or yarn
-* A Qloo API Key ([Get one from Qloo](https://docs.qloo.com/))
-* An LLM API Key (Google Gemini, OpenAI, or SumoPod)
+### Instant Browser Testing (Zero Build Server Required)
+Simply open the standalone prototype directly:
+```powershell
+Start-Process "C:\dev\QlooAgent\design\index.html"
+```
 
-### Installation
-
+### Full Local Development Server
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/venture-pulse.git
@@ -112,20 +96,19 @@ Explore the comprehensive technical specifications in the `docs/` folder:
    ```
 
 3. **Configure Environment Variables:**
-   Copy the example environment file:
    ```bash
    cp .env.example .env.local
    ```
-   Edit `.env.local` with your API keys:
+   Edit `.env.local`:
    ```env
    QLOO_API_KEY=your_qloo_api_key_here
-   QLOO_API_BASE_URL=https://api.qloo.com
+   QLOO_API_BASE_URL=https://hackathon.api.qloo.com
 
    AI_PROVIDER=google
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
 
-4. **Run the local development server:**
+4. **Run development server:**
    ```bash
    npm run dev
    ```
@@ -133,10 +116,10 @@ Explore the comprehensive technical specifications in the `docs/` folder:
 
 ---
 
-## 🏆 Hackathon Eligibility & Compliance Checklist
+## 🏆 Hackathon Compliance Checklist
 
-* [x] **Functional Demo Application:** Live, externally hosted web application accessible end-to-end.
-* [x] **Public Code Repository:** Publicly available on GitHub with complete source code and instructions.
+* [x] **Functional Demo Application:** Live, fully interactive web application accessible end-to-end.
+* [x] **Public Code Repository:** Publicly available on GitHub with complete source code, skills, and documentation.
 * [x] **Clear Project Description:** Comprehensive writeup detailing how Qloo empowers the agentic workflow.
 * [x] **External Hosting:** Fully published and deployed on Vercel.
 * [x] **Open-Source License:** Fully licensed under the [MIT License](file:///C:/dev/QlooAgent/LICENSE) visible in the repository root.
