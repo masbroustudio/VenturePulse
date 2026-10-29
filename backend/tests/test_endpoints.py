@@ -36,3 +36,13 @@ def test_eval_benchmark_endpoint():
     data = response.json()
     assert data["status"] == "PASS"
     assert data["composite_score"] >= 0.85
+
+def test_vector_search_endpoint():
+    # First resolve an entity to index it
+    client.post("/api/qloo/resolve", json={"query": "Acne Studios"})
+    # Now search vector
+    response = client.post("/api/vector/search", json={"query": "minimalist denim", "top_k": 3})
+    assert response.status_code == 200
+    data = response.json()
+    assert "results" in data
+    assert len(data["results"]) > 0

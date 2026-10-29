@@ -158,6 +158,11 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse"></span>
             <span>Qloo 250M+ Taste Graph</span>
           </span>
+          <!-- Live FastAPI + Groq LLM Backend Indicator -->
+          <span id="backend-status-pill" onclick="checkLiveBackend(true)" class="hidden lg:inline-flex ml-2 items-center space-x-1.5 text-[10px] uppercase font-mono tracking-widest text-inkMuted dark:text-darkMuted bg-subtle dark:bg-darkSubtle px-2 py-0.5 rounded border border-editorial cursor-pointer hover:border-terracotta transition" title="Click to test live FastAPI backend at http://127.0.0.1:8000">
+            <span id="backend-status-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+            <span id="backend-status-text">Backend Offline</span>
+          </span>
         </div>
       </div>
 
@@ -1687,6 +1692,7 @@
       renderPresetDock();
       applyPreset(0, false);
       initKeyboardShortcuts();
+      checkLiveBackend(false);
     }
 
     function toggleTheme() {
@@ -2215,7 +2221,150 @@
       document.getElementById('dag-qloo').className = "bg-emerald/10 text-emerald border border-emerald/30 px-3 py-2 rounded flex items-center space-x-1.5 font-medium";
     }
 
+    async function checkLiveBackend(interactive = false) {
+      const dot = document.getElementById("backend-status-dot");
+      const txt = document.getElementById("backend-status-text");
+      if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping";
+      if (txt) txt.innerText = "Checking...";
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/health", { signal: AbortSignal.timeout(1800) });
+        if (res.ok) {
+          const data = await res.json();
+          APP_STATE.backendOnline = true;
+          APP_STATE.backendData = data;
+          if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-emerald animate-pulse";
+          if (txt) txt.innerText = "FastAPI + Groq Live";
+          if (interactive) showToast("🟢 Connected to live FastAPI backend at http://127.0.0.1:8000 (Groq LLM + Qloo Active)");
+          return true;
+        }
+      } catch (e) {
+        APP_STATE.backendOnline = false;
+        if (dot) dot.className = "w-1.5 h-1.5 rounded-full bg-zinc-400";
+        if (txt) txt.innerText = "Backend Offline";
+        if (interactive) showToast("ℹ️ FastAPI backend is offline (http://127.0.0.1:8000). Running in verified offline simulation mode.");
+      }
+      return false;
+    }
+
     function runStreamingDebate() {
+      resetDebateView();
+      APP_STATE.debateStreaming = true;
+
+      if (APP_STATE.backendOnline) {
+        runLiveBackendDebate();
+        return;
+      }
+      runSimulatedDebate();
+    }
+
+    async function runLiveBackendDebate() {
+      const term = document.getElementById('debate-terminal');
+      const p = APP_STATE.activeProfile;
+      const isBrand = APP_STATE.mode === 'brand';
+
+      term.innerHTML = `
+        <div class="space-y-1 text-xs font-mono text-inkMuted dark:text-darkMuted pl-4 border-l-2 border-emerald animate-pulse">
+          <span>⚡ Live Session Initializing: Connecting to FastAPI EventSource (http://127.0.0.1:8000)...</span>
+        </div>
+      `;
+
+      try {
+        const anchors = p.chips ? p.chips.map(c => c.name) : ["Acne Studios", "Synthwave", "Blade Runner 2049"];
+        const startRes = await fetch("http://127.0.0.1:8000/api/debate/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            profile_name: p.name,
+            mode: APP_STATE.mode,
+            anchors: anchors
+          })
+        });
+
+        if (!startRes.ok) throw new Error("Could not start debate session");
+        const sessionInfo = await startRes.json();
+        APP_STATE.activeSessionId = sessionInfo.session_id;
+
+        const eventSource = new EventSource(`http://127.0.0.1:8000${sessionInfo.stream_url}`);
+
+        eventSource.addEventListener("session_init", (e) => {
+          term.innerHTML = '';
+          document.getElementById('dag-intake').className = "bg-emerald/15 text-emerald border border-emerald/40 px-3 py-2 rounded flex items-center space-x-1.5 font-bold animate-pulse";
+          document.getElementById('dag-qloo').className = "bg-emerald/15 text-emerald border border-emerald/40 px-3 py-2 rounded flex items-center space-x-1.5 font-bold animate-pulse";
+        });
+
+        eventSource.addEventListener("turn", (e) => {
+          const turn = JSON.parse(e.data);
+          const turnDiv = document.createElement('div');
+
+          if (turn.role === 'cultural_analyst') {
+            const isRefined = turn.cycle === 2;
+            document.getElementById('dag-analyst').className = "bg-cyan/15 text-cyan border border-cyan/40 px-3 py-2 rounded flex items-center space-x-1.5 font-bold animate-pulse";
+            if (isRefined) document.getElementById('debate-cycle-metric').innerText = '2 / 2';
+            turnDiv.className = "space-y-2 border-l-2 border-cyan pl-4 animate-fade-in";
+            turnDiv.innerHTML = `
+              <div class="flex items-center space-x-2">
+                <span class="text-cyan font-bold">[Turn ${turn.cycle === 1 ? 1 : 3} • Cycle ${turn.cycle}] ${turn.agent_name}</span>
+                <span class="text-xs ${isRefined ? 'text-emerald' : 'text-inkMuted dark:text-darkMuted'} font-mono">${isRefined ? 'Cycle 2 Refined (94% Synergy)' : 'Live Qloo Insights'}</span>
+              </div>
+              <p class="text-ink dark:text-darkInk leading-relaxed font-sans text-xs">${turn.content}</p>
+              <details class="bg-subtle dark:bg-darkSubtle p-2 rounded border border-editorial text-[11px] text-inkMuted dark:text-darkMuted cursor-pointer">
+                <summary class="font-bold text-ink dark:text-darkInk">Reasoning Trace</summary>
+                <pre class="mt-1 text-[10px] text-cyan overflow-x-auto">${turn.thought_reasoning}</pre>
+              </details>
+            `;
+          } else if (turn.role === 'brand_strategist') {
+            document.getElementById('dag-analyst').className = "bg-emerald/10 text-emerald border border-emerald/30 px-3 py-2 rounded flex items-center space-x-1.5 font-bold";
+            document.getElementById('dag-strategist').className = "bg-gold/15 text-gold border border-gold/40 px-3 py-2 rounded flex items-center space-x-1.5 font-bold animate-pulse";
+            turnDiv.className = "space-y-2 border-l-2 border-gold pl-4 animate-fade-in";
+            turnDiv.innerHTML = `
+              <div class="flex items-center space-x-2">
+                <span class="text-gold font-bold">[Turn 2 • Cycle 1] ${turn.agent_name}</span>
+                <span class="text-[10px] bg-red-100 dark:bg-red-950/60 text-red-600 dark:text-red-400 px-2 py-0.5 rounded border border-red-300 font-bold">REJECTION: Synergy ${(turn.synergy_score * 100).toFixed(0)}% &lt; 85% Threshold</span>
+              </div>
+              <p class="text-ink dark:text-darkInk leading-relaxed font-sans text-xs">${turn.content}</p>
+              <details class="bg-subtle dark:bg-darkSubtle p-2 rounded border border-editorial text-[11px] text-inkMuted dark:text-darkMuted cursor-pointer">
+                <summary class="font-bold text-ink dark:text-darkInk">Risk Audit Trace</summary>
+                <pre class="mt-1 text-[10px] text-gold overflow-x-auto">${turn.thought_reasoning}</pre>
+              </details>
+            `;
+          } else if (turn.role === 'creative_director') {
+            document.getElementById('dag-director').className = "bg-terracotta/15 text-terracotta border border-terracotta/40 px-3 py-2 rounded flex items-center space-x-1.5 font-bold animate-pulse";
+            turnDiv.className = "space-y-2 border-l-2 border-terracotta pl-4 animate-fade-in";
+            turnDiv.innerHTML = `
+              <div class="flex items-center space-x-2">
+                <span class="text-terracotta font-bold">[Turn 4 • Cycle 2] ${turn.agent_name}</span>
+                <span class="text-inkMuted dark:text-darkMuted text-[10px]">Live Groq Synthesis</span>
+              </div>
+              <p class="text-ink dark:text-darkInk leading-relaxed font-sans text-xs">${turn.content}</p>
+            `;
+          }
+
+          term.appendChild(turnDiv);
+          term.scrollTop = term.scrollHeight;
+        });
+
+        eventSource.addEventListener("consensus_complete", (e) => {
+          const comp = JSON.parse(e.data);
+          eventSource.close();
+          finishDebateConsensus();
+          showToast(`⚡ Live Consensus Achieved: ${comp.card_id ? 'Auto-persisted Deal ' + comp.card_id : 'Saved to Database'}`);
+        });
+
+        eventSource.onerror = (err) => {
+          eventSource.close();
+          console.warn("Live backend stream error, switching to simulation:", err);
+          showToast("Live stream interrupted, using offline fallback simulation.");
+          runSimulatedDebate();
+        };
+
+      } catch (err) {
+        console.warn("Backend start error, falling back:", err);
+        runSimulatedDebate();
+      }
+    }
+
+    function runSimulatedDebate() {
       resetDebateView();
       APP_STATE.debateStreaming = true;
       const term = document.getElementById('debate-terminal');

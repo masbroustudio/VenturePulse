@@ -10,6 +10,7 @@ from typing import AsyncGenerator, Dict, Any, List, Optional
 import litellm
 from backend.app.config import get_settings
 from backend.app.qloo.client import QlooClient, QlooEntity
+from backend.app.db.storage import Storage
 from backend.app.agent.state import (
     DeliberationSessionState,
     TurnMessage,
@@ -24,9 +25,10 @@ from backend.app.agent.prompts import (
 logger = logging.getLogger(__name__)
 
 class AgentCouncil:
-    def __init__(self, qloo_client: Optional[QlooClient] = None):
+    def __init__(self, qloo_client: Optional[QlooClient] = None, storage: Optional[Storage] = None):
         self.settings = get_settings()
         self.qloo_client = qloo_client or QlooClient()
+        self.storage = storage or Storage()
         self.model = self.settings.llm_model
 
         # Configure LiteLLM credentials if available
@@ -252,6 +254,26 @@ class AgentCouncil:
         state.final_product = product_spec
         state.consensus_reached = True
 
+        # Auto-persist session & deal into SQLite
+        card_id = f"deal_{uuid.uuid4().hex[:8]}"
+        try:
+            self.storage.save_session(session_id, profile_name, mode, state.model_dump())
+            self.storage.save_deal(
+                card_id=card_id,
+                session_id=session_id,
+                brand_name=refined_candidate,
+                category=product_spec.category,
+                affinity_multiplier=product_spec.affinity_multiplier,
+                synergy_score=0.94,
+                stage="Pitch Ready",
+                msrp=product_spec.msrp_usd,
+                run_units=product_spec.run_units,
+                gmv=product_spec.projected_gmv
+            )
+            logger.info(f"Auto-persisted session {session_id} and deal {card_id} into SQLite database.")
+        except Exception as e:
+            logger.warning(f"Failed to auto-persist deal to database: {e}")
+
         yield {
             "event": "turn",
             "data": turn_4.model_dump()
@@ -262,6 +284,7 @@ class AgentCouncil:
             "event": "consensus_complete",
             "data": {
                 "session_id": session_id,
+                "card_id": card_id,
                 "consensus_reached": True,
                 "final_synergy": 0.94,
                 "product_spec": product_spec.model_dump()

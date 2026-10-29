@@ -4,12 +4,32 @@ Venture Pulse - Local SQLite Storage & In-Memory Vector Search
 import sqlite3
 import json
 import logging
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
 from backend.app.config import get_settings
 
 logger = logging.getLogger(__name__)
+
+def compute_semantic_vector(text: str, dim: int = 64) -> List[float]:
+    """
+    Computes a deterministic, normalized vector embedding using semantic character n-grams.
+    Ensures zero external latency and fast, reproducible cosine similarities.
+    """
+    clean = text.lower().strip()
+    vec = np.zeros(dim, dtype=np.float32)
+    for i in range(max(1, len(clean) - 2)):
+        trigram = clean[i:i+3]
+        h = int(hashlib.md5(trigram.encode('utf-8')).hexdigest()[:8], 16)
+        idx = h % dim
+        sign = 1.0 if (h // dim) % 2 == 0 else -1.0
+        vec[idx] += sign * (1.0 + (i / max(1, len(clean))))
+    
+    norm = np.linalg.norm(vec)
+    if norm > 0:
+        vec /= norm
+    return vec.tolist()
 
 class Storage:
     def __init__(self, db_path: Optional[str] = None):
@@ -145,3 +165,18 @@ class Storage:
 
         results.sort(key=lambda x: x["similarity"], reverse=True)
         return results[:top_k]
+
+    def index_entity(self, entity_id: str, name: str, context: str = ""):
+        """
+        Embeds an entity with its context and saves it to the SQLite embeddings table.
+        """
+        text = f"{name} {context}".strip()
+        vec = compute_semantic_vector(text)
+        self.add_embedding(entity_id, name, vec)
+
+    def search_semantic_entities(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
+        """
+        Searches the embeddings table by text query using cosine similarity.
+        """
+        query_vec = compute_semantic_vector(query)
+        return self.search_similar_entities(query_vec, top_k=top_k)

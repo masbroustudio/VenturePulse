@@ -31,6 +31,10 @@ class InsightsRequest(BaseModel):
     filter_type: str = "urn:entity:brand"
     sample_size: int = 15
 
+class VectorSearchRequest(BaseModel):
+    query: str
+    top_k: int = 5
+
 class StartDebateRequest(BaseModel):
     profile_name: str = "Neon Void Studio"
     mode: str = "creator"  # "creator" or "brand"
@@ -66,6 +70,10 @@ async def resolve_entity(req: ResolveRequest):
     client = QlooClient()
     try:
         results = await client.search_entities(req.query, entity_type=req.entity_type)
+        # Auto-index into vector embeddings
+        for r in results:
+            desc = r.properties.get("description", "") if isinstance(r.properties, dict) else ""
+            storage.index_entity(r.entity_id, r.name, desc)
         return {"query": req.query, "count": len(results), "results": [r.model_dump() for r in results]}
     except QlooAuthenticationError as e:
         raise HTTPException(status_code=401, detail=str(e))
@@ -80,6 +88,10 @@ async def get_insights(req: InsightsRequest):
     client = QlooClient()
     try:
         results = await client.get_insights(req.entity_id, filter_type=req.filter_type, sample_size=req.sample_size)
+        # Auto-index into vector embeddings
+        for e in results:
+            desc = e.properties.get("description", "") if isinstance(e.properties, dict) else ""
+            storage.index_entity(e.entity_id, e.name, desc)
         return {"entity_id": req.entity_id, "count": len(results), "entities": [e.model_dump() for e in results]}
     except QlooAuthenticationError as e:
         raise HTTPException(status_code=401, detail=str(e))
@@ -87,6 +99,16 @@ async def get_insights(req: InsightsRequest):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# 4. VECTOR SEMANTIC SEARCH
+@router.post("/vector/search")
+async def search_vector(req: VectorSearchRequest):
+    results = storage.search_semantic_entities(req.query, top_k=req.top_k)
+    return {
+        "query": req.query,
+        "count": len(results),
+        "results": results
+    }
 
 # 4. START DELIBERATION
 @router.post("/debate/start")
