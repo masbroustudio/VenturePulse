@@ -1,5 +1,5 @@
 # Venture Pulse — Entity Relationship Diagram & Data Models
-**Relational Schema & TypeScript Interface Specifications**
+**Relational Schema, PostgreSQL + pgvector Migration & TypeScript Interfaces**
 
 ---
 
@@ -17,90 +17,92 @@ erDiagram
     BRAND_TARGET_CARD ||--o{ QLOO_ENTITY_SIGNAL : "backed_by"
 
     CREATOR_PROFILE {
-        string id PK
+        uuid id PK
         string name
         string handle
-        string category "Gaming | Podcast | Music | Art | Tech"
-        string audience_summary
+        string category
+        text audience_summary
         string primary_vibe
-        datetime created_at
+        vector embedding "vector(1536) for semantic matching"
+        timestamptz created_at
     }
 
     CULTURAL_ANCHOR {
-        string id PK
-        string creator_id FK
-        string domain "music | film | fashion | dining | literature"
+        uuid id PK
+        uuid creator_id FK
+        string domain
         string entity_name
         string qloo_entity_id
         float confidence_weight
     }
 
     DEBATE_SESSION {
-        string id PK
-        string creator_id FK
+        uuid id PK
+        uuid creator_id FK
         string status "running | consensus_reached | failed"
         float overall_cultural_synergy_score
         int turns_count
-        datetime started_at
-        datetime completed_at
+        timestamptz started_at
+        timestamptz completed_at
     }
 
     DEBATE_TURN {
-        string id PK
-        string session_id FK
+        uuid id PK
+        uuid session_id FK
         int turn_index
         string agent_role "Cultural_Analyst | Brand_Strategist | Creative_Director"
-        string thought_reasoning
-        string message_content
-        json tool_calls
-        datetime timestamp
+        text thought_reasoning
+        text message_content
+        jsonb tool_calls
+        timestamptz timestamp
     }
 
     BRAND_TARGET_CARD {
-        string id PK
-        string session_id FK
+        uuid id PK
+        uuid session_id FK
         string brand_name
-        string brand_domain "Apparel | Beverage | Tech | Living"
+        string brand_domain
         string pipeline_stage "Discovered | Vetted | Pitch_Ready | Dispatched"
         float qloo_affinity_score
         float demographic_overlap_pct
         string estimated_deal_tier
-        datetime updated_at
+        vector embedding "vector(1536) for brand clustering"
+        timestamptz updated_at
     }
 
     COLLAB_PRODUCT_CONCEPT {
-        string id PK
-        string brand_card_id FK
+        uuid id PK
+        uuid brand_card_id FK
         string product_title
         string format
-        string aesthetic_description
-        string packaging_spec
+        text aesthetic_description
+        text packaging_spec
         float target_retail_price
     }
 
     OUTREACH_PITCH {
-        string id PK
-        string brand_card_id FK
+        uuid id PK
+        uuid brand_card_id FK
         string subject_line
-        string hook_statement
-        string data_grounding_paragraph
-        string call_to_action
-        string vanilla_llm_comparison
+        text hook_statement
+        text data_grounding_paragraph
+        text call_to_action
+        text vanilla_llm_comparison
     }
 
     DISPATCH_WEBHOOK_LOG {
-        string id PK
-        string brand_card_id FK
+        uuid id PK
+        uuid brand_card_id FK
         string target_service "HubSpot | Notion | Custom_Webhook"
         string endpoint_url
-        string payload_json
+        jsonb payload_json
         int response_status
-        datetime dispatched_at
+        timestamptz dispatched_at
     }
 
     QLOO_ENTITY_SIGNAL {
-        string id PK
-        string brand_card_id FK
+        uuid id PK
+        uuid brand_card_id FK
         string source_entity_id
         string target_entity_id
         float affinity_metric
@@ -110,9 +112,115 @@ erDiagram
 
 ---
 
-## 2. TypeScript Data Interfaces
+## 2. PostgreSQL + pgvector Migration Schema (`supabase/migrations/001_initial_schema.sql`)
 
-These interfaces govern all client-side state, API responses, and database mappings across the codebase:
+```sql
+-- Enable pgvector extension for semantic cultural embeddings
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Creator Profiles
+CREATE TABLE creator_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    handle VARCHAR(100),
+    category VARCHAR(100) NOT NULL,
+    audience_summary TEXT,
+    primary_vibe VARCHAR(255),
+    embedding VECTOR(1536),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Cultural Anchors declared by creators
+CREATE TABLE cultural_anchors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    creator_id UUID REFERENCES creator_profiles(id) ON DELETE CASCADE,
+    domain VARCHAR(50) NOT NULL,
+    entity_name VARCHAR(255) NOT NULL,
+    qloo_entity_id VARCHAR(100),
+    confidence_weight FLOAT DEFAULT 1.0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Debate Sessions
+CREATE TABLE debate_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    creator_id UUID REFERENCES creator_profiles(id) ON DELETE CASCADE,
+    status VARCHAR(50) DEFAULT 'running',
+    overall_cultural_synergy_score FLOAT,
+    turns_count INT DEFAULT 0,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ
+);
+
+-- Multi-Agent Debate Turns (Live Thought Stream & Tool Calls)
+CREATE TABLE debate_turns (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES debate_sessions(id) ON DELETE CASCADE,
+    turn_index INT NOT NULL,
+    agent_role VARCHAR(100) NOT NULL,
+    thought_reasoning TEXT,
+    message_content TEXT,
+    tool_calls JSONB,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Brand Target Cards (Kanban Pipeline Items)
+CREATE TABLE brand_target_cards (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID REFERENCES debate_sessions(id) ON DELETE CASCADE,
+    brand_name VARCHAR(255) NOT NULL,
+    brand_domain VARCHAR(100) NOT NULL,
+    pipeline_stage VARCHAR(50) DEFAULT 'Discovered',
+    qloo_affinity_score FLOAT NOT NULL,
+    demographic_overlap_pct FLOAT,
+    estimated_deal_tier VARCHAR(100),
+    embedding VECTOR(1536),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Physical Collaboration Concepts
+CREATE TABLE collab_product_concepts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    brand_card_id UUID REFERENCES brand_target_cards(id) ON DELETE CASCADE,
+    product_title VARCHAR(255) NOT NULL,
+    format VARCHAR(100),
+    aesthetic_description TEXT,
+    packaging_spec TEXT,
+    target_retail_price NUMERIC(10, 2),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Personalized Outreach Pitch Letters
+CREATE TABLE outreach_pitches (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    brand_card_id UUID REFERENCES brand_target_cards(id) ON DELETE CASCADE,
+    subject_line VARCHAR(255) NOT NULL,
+    hook_statement TEXT,
+    data_grounding_paragraph TEXT,
+    call_to_action TEXT,
+    vanilla_llm_comparison TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Outbound Webhook Logs
+CREATE TABLE dispatch_webhook_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    brand_card_id UUID REFERENCES brand_target_cards(id) ON DELETE CASCADE,
+    target_service VARCHAR(100) NOT NULL,
+    endpoint_url TEXT NOT NULL,
+    payload_json JSONB NOT NULL,
+    response_status INT,
+    dispatched_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indexes for vector similarity search
+CREATE INDEX ON creator_profiles USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+CREATE INDEX ON brand_target_cards USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+```
+
+---
+
+## 3. TypeScript Interfaces
 
 ```typescript
 export type CreatorCategory = 'Gaming' | 'Podcast' | 'Music' | 'Art' | 'Tech' | 'Lifestyle';
@@ -134,6 +242,7 @@ export interface CreatorProfile {
   audienceSummary: string;
   primaryVibe: string;
   anchors: CulturalAnchor[];
+  embedding?: number[];
   createdAt: string;
 }
 
@@ -158,7 +267,7 @@ export interface DebateSession {
   id: string;
   creatorId: string;
   status: 'idle' | 'running' | 'consensus_reached' | 'failed';
-  overallCulturalSynergyScore: number; // 0 - 100
+  overallCulturalSynergyScore: number;
   turns: DebateTurn[];
   startedAt: string;
   completedAt?: string;
@@ -182,28 +291,9 @@ export interface OutreachPitch {
   brandCardId: string;
   subjectLine: string;
   hookStatement: string;
-  dataGroundingParagraph: string; // The mathematical Qloo citation
+  dataGroundingParagraph: string;
   callToAction: string;
-  vanillaLlmComparison: string; // Counter-factual ungrounded baseline
-}
-
-export interface QlooEntitySignal {
-  id: string;
-  brandCardId: string;
-  sourceEntityName: string;
-  targetEntityName: string;
-  affinityMetric: number; // e.g. 7.8x affinity
-  crossDomainPath: string; // e.g. "Synthwave -> Japanese Raw Denim"
-}
-
-export interface DispatchWebhookLog {
-  id: string;
-  brandCardId: string;
-  targetService: 'HubSpot' | 'Notion' | 'Custom_Webhook';
-  endpointUrl: string;
-  payloadJson: Record<string, unknown>;
-  responseStatus: number;
-  dispatchedAt: string;
+  vanillaLlmComparison: string;
 }
 
 export interface BrandTargetCard {
@@ -212,28 +302,18 @@ export interface BrandTargetCard {
   brandName: string;
   brandDomain: 'Apparel' | 'Beverage' | 'Tech' | 'Living' | 'Cosmetics';
   pipelineStage: PipelineStage;
-  qlooAffinityScore: number; // e.g. 7.8 (meaning 7.8x baseline affinity)
-  demographicOverlapPct: number; // 0 - 100
+  qlooAffinityScore: number;
+  demographicOverlapPct: number;
   estimatedDealTier: DealTier;
-  signals: QlooEntitySignal[];
+  embedding?: number[];
   productConcept: CollabProductConcept;
   pitch: OutreachPitch;
-  dispatchLogs: DispatchWebhookLog[];
+  dispatchLogs: Array<{
+    targetService: string;
+    endpointUrl: string;
+    responseStatus: number;
+    dispatchedAt: string;
+  }>;
   updatedAt: string;
 }
 ```
-
----
-
-## 3. Storage Architecture: Client-First Hybrid Model
-
-To guarantee **zero friction for hackathon judges** while maintaining **enterprise production standards**:
-
-1. **Browser Layer (IndexedDB via `idb-keyval`):**
-   - Automatically initializes on page load.
-   - Provides instantaneous read/write latency without requiring judges to sign up or log in.
-   - Preserves state across browser tab refreshes.
-2. **Export Layer:**
-   - Serializes the entire session state into exportable JSON or Markdown dossier with a single click.
-3. **Enterprise PostgreSQL / Prisma Schema (Ready to Deploy):**
-   - A companion Prisma schema (`prisma/schema.prisma`) mirrors the TypeScript interfaces 1:1, allowing instant migration to Supabase, Neon, or Railway PostgreSQL by setting `DATABASE_URL`.
