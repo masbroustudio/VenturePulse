@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     qloo_api_base_url: str = Field(default="https://hackathon.api.qloo.com", alias="QLOO_API_BASE_URL")
 
     # Multi-Provider LLM Configuration (LiteLLM)
-    ai_provider: str = Field(default="google", alias="AI_PROVIDER")
-    llm_model: str = Field(default="gemini/gemini-2.0-flash", alias="LLM_MODEL")
+    ai_provider: str = Field(default="groq", alias="AI_PROVIDER")
+    llm_model: str = Field(default="groq/qwen/qwen3.8-27b", alias="LLM_MODEL")
+    groq_api_key: Optional[str] = Field(default=None, alias="GROQ_API_KEY")
     gemini_api_key: Optional[str] = Field(default=None, alias="GEMINI_API_KEY")
     openai_api_key: Optional[str] = Field(default=None, alias="OPENAI_API_KEY")
     openai_base_url: Optional[str] = Field(default=None, alias="OPENAI_BASE_URL")

@@ -1,6 +1,7 @@
 """
 Venture Pulse - LiteLLM Multi-Agent Cyclic Council
 """
+import os
 import asyncio
 import json
 import uuid
@@ -29,8 +30,12 @@ class AgentCouncil:
         self.model = self.settings.llm_model
 
         # Configure LiteLLM credentials if available
-        if self.settings.gemini_api_key:
+        if self.settings.groq_api_key:
+            litellm.api_key = self.settings.groq_api_key
+            os.environ["GROQ_API_KEY"] = self.settings.groq_api_key
+        elif self.settings.gemini_api_key:
             litellm.api_key = self.settings.gemini_api_key
+            os.environ["GEMINI_API_KEY"] = self.settings.gemini_api_key
         elif self.settings.openai_api_key:
             litellm.api_key = self.settings.openai_api_key
             if self.settings.openai_base_url:
@@ -38,7 +43,7 @@ class AgentCouncil:
 
     async def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
         """Helper to invoke LiteLLM with fallback to grounded template"""
-        has_llm_key = bool(self.settings.gemini_api_key or self.settings.openai_api_key)
+        has_llm_key = bool(self.settings.groq_api_key or self.settings.gemini_api_key or self.settings.openai_api_key)
         if has_llm_key:
             try:
                 response = await litellm.acompletion(
@@ -48,7 +53,7 @@ class AgentCouncil:
                         {"role": "user", "content": user_prompt}
                     ],
                     temperature=0.3,
-                    max_tokens=800
+                    max_tokens=120
                 )
                 return response.choices[0].message.content
             except Exception as e:
