@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QlooVenturePulseSkillSuite",
+  "description": "JSON Schemas for Venture Pulse 6-Agent Skill Protocol",
+  "skills": {
+    "qloo_taste_explorer": {
+      "type": "object",
+      "required": ["anchorEntities", "targetDomains"],
+      "properties": {
+        "anchorEntities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "maxItems": 5
+        },
+        "targetDomains": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["fashion", "beverage", "tech", "living", "lifestyle"] }
+        },
+        "minAffinityThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5
+        }
+      }
+    },
+    "market_feasibility_validator": {
+      "type": "object",
+      "required": ["brandName", "brandDomain", "creatorCategory", "creatorAudienceTier"],
+      "properties": {
+        "brandName": { "type": "string" },
+        "brandDomain": { "type": "string" },
+        "creatorCategory": { "type": "string" },
+        "creatorAudienceTier": {
+          "type": "string",
+          "enum": ["Nano (1k-10k)", "Micro (10k-50k)", "Mid (50k-250k)", "Macro (250k+)"]
+        }
+      }
+    },
+    "creative_concept_synthesizer": {
+      "type": "object",
+      "required": ["creatorName", "creatorVibe", "brandName", "brandDomain", "culturalIntersectionTags"],
+      "properties": {
+        "creatorName": { "type": "string" },
+        "creatorVibe": { "type": "string" },
+        "brandName": { "type": "string" },
+        "brandDomain": { "type": "string" },
+        "culturalIntersectionTags": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "pitch_architect": {
+      "type": "object",
+      "required": ["targetBrand", "creatorName", "audienceSummary", "productConcept", "qlooAffinityMultiplier"],
+      "properties": {
+        "targetBrand": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "audienceSummary": { "type": "string" },
+        "productConcept": {
+          "type": "object",
+          "required": ["title", "description"],
+          "properties": {
+            "title": { "type": "string" },
+            "description": { "type": "string" }
+          }
+        },
+        "qlooAffinityMultiplier": { "type": "number" }
+      }
+    },
+    "vanilla_llm_counter_proof": {
+      "type": "object",
+      "required": ["creatorName", "creatorCategory"],
+      "properties": {
+        "creatorName": { "type": "string" },
+        "creatorCategory": { "type": "string" }
+      }
+    },
+    "crm_webhook_dispatcher": {
+      "type": "object",
+      "required": ["targetService", "webhookUrl", "cardPayload"],
+      "properties": {
+        "targetService": {
+          "type": "string",
+          "enum": ["HubSpot", "Notion", "Custom_Webhook"]
+        },
+        "webhookUrl": { "type": "string", "format": "uri" },
+        "cardPayload": { "type": "object" }
+      }
+    }
+  }
+}
