@@ -84,35 +84,48 @@ Start-Process "C:\dev\QlooAgent\design\index.html"
 ```
 
 ### Full Local Development Server
+
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/venture-pulse.git
    cd venture-pulse
    ```
 
-2. **Install dependencies:**
+2. **Configure Environment Variables:**
    ```bash
-   npm install
+   cp .env.example .env
+   cp frontend/.env.example frontend/.env.local
    ```
-
-3. **Configure Environment Variables:**
-   ```bash
-   cp .env.example .env.local
-   ```
-   Edit `.env.local`:
+   Add your API keys to `.env` (kept strictly git-ignored):
    ```env
-   QLOO_API_KEY=your_qloo_api_key_here
-   QLOO_API_BASE_URL=https://hackathon.api.qloo.com
-
-   AI_PROVIDER=google
-   GEMINI_API_KEY=your_gemini_api_key_here
+   QLOO_API_KEY=hack_...
+   GROQ_API_KEY=gsk_...
+   GEMINI_API_KEY=AQ...
    ```
 
-4. **Run development server:**
+3. **Start the FastAPI Backend:**
    ```bash
+   pip install -r backend/requirements.txt
+   uvicorn backend.app.main:app --reload --port 8000
+   ```
+   Backend endpoints will be live at `http://127.0.0.1:8000` (`/docs` for OpenAPI swagger).
+
+4. **Start the Next.js Frontend:**
+   ```bash
+   cd frontend
+   npm install
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+5. **Run Test Suites:**
+   ```bash
+   # Run Backend Pytest Suite
+   python -m pytest backend/tests/ -v
+
+   # Run Frontend Typecheck & Build
+   npm --prefix frontend run build
+   ```
 
 ---
 
