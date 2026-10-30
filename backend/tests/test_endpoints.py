@@ -46,3 +46,30 @@ def test_vector_search_endpoint():
     data = response.json()
     assert "results" in data
     assert len(data["results"]) > 0
+
+def test_settings_llm_lifecycle():
+    # 1. Fetch current LLM settings
+    res = client.get("/api/settings/llm")
+    assert res.status_code == 200
+    data = res.json()
+    assert "active_provider" in data
+    assert "active_model" in data
+    assert "catalog" in data
+    assert "groq" in data["catalog"]
+
+    # 2. Update LLM settings
+    update_res = client.post("/api/settings/llm", json={
+        "provider": "gemini",
+        "model": "gemini/gemini-2.5-flash",
+    })
+    assert update_res.status_code == 200
+    updated_data = update_res.json()
+    assert updated_data["active_provider"] == "gemini"
+    assert updated_data["active_model"] == "gemini/gemini-2.5-flash"
+
+    # Reset back to groq
+    client.post("/api/settings/llm", json={
+        "provider": "groq",
+        "model": "groq/qwen/qwen3.8-27b",
+    })
+

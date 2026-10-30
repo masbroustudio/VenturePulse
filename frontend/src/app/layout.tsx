@@ -10,6 +10,7 @@ import { ProofArenaModal } from "@/components/modals/ProofArenaModal";
 import { TelemetryDrawer } from "@/components/modals/TelemetryDrawer";
 import { CommandPalette } from "@/components/modals/CommandPalette";
 import { SkillsModal } from "@/components/modals/SkillsModal";
+import { SettingsModal } from "@/components/modals/SettingsModal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -64,6 +65,7 @@ export default function RootLayout({
           <TelemetryDrawer />
           <CommandPalette />
           <SkillsModal />
+          <SettingsModal />
         </QueryProvider>
       </body>
     </html>

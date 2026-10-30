@@ -9,7 +9,7 @@ import re
 import logging
 from typing import AsyncGenerator, Dict, Any, List, Optional
 import litellm
-from backend.app.config import get_settings
+from backend.app.config import get_settings, get_runtime_llm
 from backend.app.qloo.client import QlooClient, QlooEntity
 from backend.app.db.storage import Storage
 from backend.app.agent.state import (
@@ -46,18 +46,35 @@ class AgentCouncil:
 
     async def _call_llm(self, system_prompt: str, user_prompt: str, max_tokens: int = 150) -> str:
         """Helper to invoke LiteLLM with fallback to grounded template"""
-        has_llm_key = bool(self.settings.groq_api_key or self.settings.gemini_api_key or self.settings.openai_api_key)
-        if has_llm_key:
+        runtime = get_runtime_llm()
+        active_model = runtime.model or self.model
+        active_key = runtime.api_key
+        active_base = runtime.base_url
+
+        if not active_key:
+            if "groq" in active_model.lower() or runtime.provider == "groq":
+                active_key = self.settings.groq_api_key or os.environ.get("GROQ_API_KEY")
+            elif "gemini" in active_model.lower() or runtime.provider == "gemini":
+                active_key = self.settings.gemini_api_key or os.environ.get("GEMINI_API_KEY")
+            elif "openai" in active_model.lower() or runtime.provider == "openai":
+                active_key = self.settings.openai_api_key or os.environ.get("OPENAI_API_KEY")
+
+        if active_key:
             try:
-                response = await litellm.acompletion(
-                    model=self.model,
-                    messages=[
+                kwargs: Dict[str, Any] = {
+                    "model": active_model,
+                    "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
                     ],
-                    temperature=0.3,
-                    max_tokens=max_tokens
-                )
+                    "temperature": 0.3,
+                    "max_tokens": max_tokens,
+                    "api_key": active_key,
+                }
+                if active_base:
+                    kwargs["api_base"] = active_base
+
+                response = await litellm.acompletion(**kwargs)
                 return response.choices[0].message.content
             except Exception as e:
                 logger.warning(f"LiteLLM call error ({str(e)}), generating structured synthesis.")

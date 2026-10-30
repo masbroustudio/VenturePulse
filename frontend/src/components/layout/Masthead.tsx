@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store";
-import { Moon, Sun, Activity, Zap, Search, ShieldCheck, MessageSquare, LayoutGrid, Network, Server } from "lucide-react";
+import { Moon, Sun, Activity, Zap, Search, ShieldCheck, MessageSquare, LayoutGrid, Network, Server, Settings } from "lucide-react";
 
 export function Masthead() {
   const {
@@ -17,6 +17,7 @@ export function Masthead() {
     setProofModalOpen,
     setTelemetryOpen,
     setCommandPaletteOpen,
+    setSettingsModalOpen,
     setBackendOnline,
     showToast,
     activeProfile,
@@ -227,6 +228,15 @@ export function Masthead() {
             title="Toggle Light / Dark Mode"
           >
             {theme === "light" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* LLM Engine & Provider Settings (Immediately after Theme Switcher) */}
+          <button
+            onClick={() => setSettingsModalOpen(true)}
+            className="w-8 h-8 rounded border border-editorial bg-surface dark:bg-darkSurface flex items-center justify-center text-ink dark:text-darkInk hover:border-terracotta hover:text-terracotta transition text-xs shadow-sm"
+            title="LLM Engine & Provider Settings (Groq, Gemini, OpenAI, Custom)"
+          >
+            <Settings className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

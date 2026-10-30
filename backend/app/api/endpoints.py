@@ -1,6 +1,7 @@
 """
 Venture Pulse - API Endpoints Router (REST & Server-Sent Events)
 """
+import os
 import uuid
 import json
 import logging
@@ -9,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Query, Body, BackgroundTasks
 from pydantic import BaseModel, Field
 from sse_starlette.sse import EventSourceResponse
 
-from backend.app.config import get_settings
+from backend.app.config import get_settings, get_runtime_llm, update_runtime_llm, MODEL_CATALOG
 from backend.app.qloo.client import QlooClient, QlooAuthenticationError, QlooValidationError, QlooNetworkError
 from backend.app.agent.council import AgentCouncil
 from backend.app.db.storage import Storage
@@ -346,3 +347,105 @@ async def chat_copilot_stream(req: ChatRequest):
             }
 
     return EventSourceResponse(event_generator())
+
+# 10. LLM SETTINGS & MODEL CONFIGURATION
+class UpdateLLMRequest(BaseModel):
+    provider: str = "groq"
+    model: str = "groq/qwen/qwen3.8-27b"
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+
+class TestLLMRequest(BaseModel):
+    provider: str = "groq"
+    model: str = "groq/qwen/qwen3.8-27b"
+    api_key: Optional[str] = None
+    base_url: Optional[str] = None
+    probe_prompt: Optional[str] = "Reply in 1 concise sentence validating cultural AI capability."
+
+@router.get("/settings/llm")
+async def get_llm_settings():
+    settings = get_settings()
+    runtime = get_runtime_llm()
+    return {
+        "active_provider": runtime.provider,
+        "active_model": runtime.model,
+        "base_url": runtime.base_url,
+        "catalog": MODEL_CATALOG,
+        "env_keys": {
+            "groq": bool(settings.groq_api_key),
+            "gemini": bool(settings.gemini_api_key),
+            "openai": bool(settings.openai_api_key),
+            "custom": bool(runtime.api_key or settings.openai_base_url)
+        },
+        "has_runtime_key": bool(runtime.api_key)
+    }
+
+@router.post("/settings/llm")
+async def update_llm_settings(req: UpdateLLMRequest):
+    updated = update_runtime_llm(
+        provider=req.provider,
+        model=req.model,
+        api_key=req.api_key if req.api_key and req.api_key.strip() else None,
+        base_url=req.base_url if req.base_url and req.base_url.strip() else None
+    )
+    return {
+        "status": "UPDATED",
+        "active_provider": updated.provider,
+        "active_model": updated.model,
+        "base_url": updated.base_url
+    }
+
+@router.post("/settings/test-llm")
+async def test_llm_connection(req: TestLLMRequest):
+    import time
+    import litellm
+    settings = get_settings()
+
+    key = req.api_key
+    if not key:
+        if "groq" in req.model.lower() or req.provider == "groq":
+            key = settings.groq_api_key or os.environ.get("GROQ_API_KEY")
+        elif "gemini" in req.model.lower() or req.provider == "gemini":
+            key = settings.gemini_api_key or os.environ.get("GEMINI_API_KEY")
+        elif "openai" in req.model.lower() or req.provider == "openai":
+            key = settings.openai_api_key or os.environ.get("OPENAI_API_KEY")
+
+    if not key and req.provider != "custom":
+        raise HTTPException(
+            status_code=400,
+            detail=f"No API key provided or found in environment for provider '{req.provider}'."
+        )
+
+    start_t = time.perf_counter()
+    try:
+        kwargs: Dict[str, Any] = {
+            "model": req.model,
+            "messages": [
+                {"role": "system", "content": "You are Venture Pulse LLM engine probe."},
+                {"role": "user", "content": req.probe_prompt or "Ping test."}
+            ],
+            "max_tokens": 50,
+            "temperature": 0.2,
+            "timeout": 6.0
+        }
+        if key:
+            kwargs["api_key"] = key
+        if req.base_url:
+            kwargs["api_base"] = req.base_url
+
+        resp = await litellm.acompletion(**kwargs)
+        latency = round((time.perf_counter() - start_t) * 1000)
+        content = resp.choices[0].message.content.strip()
+        return {
+            "status": "SUCCESS",
+            "provider": req.provider,
+            "model": req.model,
+            "latency_ms": latency,
+            "message": content
+        }
+    except Exception as e:
+        latency = round((time.perf_counter() - start_t) * 1000)
+        raise HTTPException(
+            status_code=502,
+            detail=f"LiteLLM connection test failed ({latency}ms): {str(e)}"
+        )

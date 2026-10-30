@@ -18,6 +18,7 @@ interface AppState {
   isTelemetryOpen: boolean;
   isCommandPaletteOpen: boolean;
   isSkillsModalOpen: boolean;
+  isSettingsModalOpen: boolean;
   backendOnline: boolean;
   toastMessage: string | null;
 
@@ -36,6 +37,7 @@ interface AppState {
   setTelemetryOpen: (open: boolean) => void;
   setCommandPaletteOpen: (open: boolean) => void;
   setSkillsModalOpen: (open: boolean) => void;
+  setSettingsModalOpen: (open: boolean) => void;
   setBackendOnline: (online: boolean) => void;
   showToast: (msg: string) => void;
   clearToast: () => void;
@@ -54,6 +56,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   isTelemetryOpen: false,
   isCommandPaletteOpen: false,
   isSkillsModalOpen: false,
+  isSettingsModalOpen: false,
   backendOnline: false,
   toastMessage: null,
 
@@ -178,6 +181,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setTelemetryOpen: (open) => set({ isTelemetryOpen: open }),
   setCommandPaletteOpen: (open) => set({ isCommandPaletteOpen: open }),
   setSkillsModalOpen: (open) => set({ isSkillsModalOpen: open }),
+  setSettingsModalOpen: (open) => set({ isSettingsModalOpen: open }),
   setBackendOnline: (online) => set({ backendOnline: online }),
 
   showToast: (msg) => {

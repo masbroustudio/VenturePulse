@@ -41,3 +41,51 @@ class Settings(BaseSettings):
 
 def get_settings() -> Settings:
     return Settings()
+
+# Multi-Provider Model Catalog
+MODEL_CATALOG = {
+    "groq": [
+        {"id": "groq/qwen/qwen3.8-27b", "name": "Qwen 2.5 32B (Default)", "desc": "High-accuracy cultural analysis & ultra-fast synthesis (Verified Live)"},
+        {"id": "groq/openai/gpt-oss-120b", "name": "GPT-OSS 120B Flagship", "desc": "Deep reasoning & multi-agent adversarial council"},
+        {"id": "groq/openai/gpt-oss-20b", "name": "GPT-OSS 20B Fast", "desc": "Low-latency streaming & unit economics"},
+        {"id": "groq/allam-2-7b", "name": "ALLaM 2 7B Instant", "desc": "Ultra lightweight sub-50ms token generation"},
+    ],
+    "gemini": [
+        {"id": "gemini/gemini-2.5-flash", "name": "Gemini 2.5 Flash", "desc": "Next-gen multimodal speed & reasoning"},
+        {"id": "gemini/gemini-1.5-pro", "name": "Gemini 1.5 Pro", "desc": "Complex cross-domain synthesis with 2M context window"},
+        {"id": "gemini/gemini-1.5-flash", "name": "Gemini 1.5 Flash", "desc": "Fast multimodal intelligence"},
+    ],
+    "openai": [
+        {"id": "openai/gpt-4o", "name": "GPT-4o Flagship", "desc": "Omni model for creative direction & economics"},
+        {"id": "openai/gpt-4o-mini", "name": "GPT-4o Mini", "desc": "Fast everyday reasoning"},
+        {"id": "openai/o3-mini", "name": "o3-mini", "desc": "STEM & economic modeling reasoning specialist"},
+    ],
+    "custom": [
+        {"id": "openrouter/auto", "name": "OpenRouter Auto Router", "desc": "Dynamic multi-model fallback gateway"},
+        {"id": "custom", "name": "Custom Model Endpoint", "desc": "Any OpenAI-compatible v1 endpoint / Ollama"},
+    ]
+}
+
+class RuntimeLLMConfig:
+    def __init__(self):
+        settings = get_settings()
+        self.provider = settings.ai_provider or "groq"
+        self.model = settings.llm_model or "groq/qwen/qwen3.8-27b"
+        self.api_key = None
+        self.base_url = settings.openai_base_url
+
+_runtime_llm = RuntimeLLMConfig()
+
+def get_runtime_llm() -> RuntimeLLMConfig:
+    global _runtime_llm
+    return _runtime_llm
+
+def update_runtime_llm(provider: str, model: str, api_key: Optional[str] = None, base_url: Optional[str] = None) -> RuntimeLLMConfig:
+    global _runtime_llm
+    _runtime_llm.provider = provider
+    _runtime_llm.model = model
+    if api_key:
+        _runtime_llm.api_key = api_key
+    if base_url is not None:
+        _runtime_llm.base_url = base_url
+    return _runtime_llm
