@@ -10,16 +10,17 @@ from pydantic import Field
 # Project root path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_FILE = ROOT_DIR / ".env"
+DEFAULT_DB = "/tmp/venture_pulse.db" if os.environ.get("VERCEL") else "backend/data/venture_pulse.db"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=ENV_FILE,
+        env_file=ENV_FILE if ENV_FILE.exists() else None,
         env_file_encoding="utf-8",
         extra="ignore"
     )
 
-    # Qloo Cultural AI API (Strict live configuration)
-    qloo_api_key: str = Field(default=..., alias="QLOO_API_KEY")
+    # Qloo Cultural AI API (Strict live configuration with resilient fallback)
+    qloo_api_key: str = Field(default=os.environ.get("QLOO_API_KEY", ""), alias="QLOO_API_KEY")
     qloo_api_base_url: str = Field(default="https://hackathon.api.qloo.com", alias="QLOO_API_BASE_URL")
 
     # Multi-Provider LLM Configuration (LiteLLM)
@@ -31,7 +32,7 @@ class Settings(BaseSettings):
     openai_base_url: Optional[str] = Field(default=None, alias="OPENAI_BASE_URL")
 
     # Persistence
-    database_path: str = Field(default="backend/data/venture_pulse.db", alias="DATABASE_PATH")
+    database_path: str = Field(default=DEFAULT_DB, alias="DATABASE_PATH")
     supabase_url: Optional[str] = Field(default=None, alias="SUPABASE_URL")
     supabase_key: Optional[str] = Field(default=None, alias="SUPABASE_ANON_KEY")
 
