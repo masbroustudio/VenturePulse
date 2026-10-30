@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useAppStore } from "@/lib/store";
 import { EgoBrandNode, EgoTagNode } from "@/types/qloo";
+import { Plus, Minus, RotateCcw } from "lucide-react";
 
 export const EgoGraphSvg: React.FC = () => {
   const { activeProfile, mode, showToast } = useAppStore();
@@ -23,6 +24,56 @@ export const EgoGraphSvg: React.FC = () => {
 
   const centerX = 300;
   const centerY = 230;
+
+  // Zoom and Pan State
+  const [zoom, setZoom] = useState<number>(1.0);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoom((prev) => Math.min(2.5, +(prev + 0.15).toFixed(2)));
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoom((prev) => Math.max(0.6, +(prev - 0.15).toFixed(2)));
+  };
+
+  const handleResetZoom = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setZoom(1.0);
+    setPan({ x: 0, y: 0 });
+    showToast("Reset Ego Graph View (100%)");
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      setZoom((prev) => Math.min(2.5, +(prev + 0.1).toFixed(2)));
+    } else {
+      setZoom((prev) => Math.max(0.6, +(prev - 0.1).toFixed(2)));
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only drag on canvas background
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: e.clientX - dragStart.x,
+      y: e.clientY - dragStart.y,
+    });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   const activeHoveredBrand = graph.brands.find((b) => b.id === hoveredBrandId);
   const activeHoveredTag = activeHoveredBrand
@@ -97,12 +148,58 @@ export const EgoGraphSvg: React.FC = () => {
         </p>
       </div>
 
-      {/* SVG Canvas Container */}
-      <div className="w-full h-[420px] sm:h-[460px] bg-paper dark:bg-darkSubtle rounded border border-editorial relative overflow-hidden flex items-center justify-center">
+      {/* SVG Canvas Container with Zoom & Pan */}
+      <div
+        className={`w-full h-[420px] sm:h-[460px] bg-paper dark:bg-darkSubtle rounded border border-editorial relative overflow-hidden flex items-center justify-center select-none ${
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        {/* Floating Glass Navigation Dock (Top-Right) */}
+        <div
+          className="absolute top-3 right-3 z-10 flex items-center space-x-1 bg-surface/90 dark:bg-darkSurface/90 backdrop-blur border border-editorial rounded-md p-1 shadow-sm font-mono text-xs select-none"
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleZoomIn}
+            className="w-6 h-6 rounded flex items-center justify-center hover:bg-subtle dark:hover:bg-darkSubtle text-ink dark:text-darkInk hover:text-terracotta transition"
+            title="Zoom In (+)"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="w-6 h-6 rounded flex items-center justify-center hover:bg-subtle dark:hover:bg-darkSubtle text-ink dark:text-darkInk hover:text-terracotta transition"
+            title="Zoom Out (-)"
+          >
+            <Minus className="w-3.5 h-3.5" />
+          </button>
+          <span className="px-2 py-0.5 text-[10px] text-inkMuted dark:text-darkMuted font-bold border-l border-r border-editorial select-none min-w-[42px] text-center">
+            {Math.round(zoom * 100)}%
+          </span>
+          <button
+            onClick={handleResetZoom}
+            className="w-6 h-6 rounded flex items-center justify-center hover:bg-subtle dark:hover:bg-darkSubtle text-ink dark:text-darkInk hover:text-terracotta transition"
+            title="Reset View (100%)"
+          >
+            <RotateCcw className="w-3 h-3" />
+          </button>
+        </div>
+
         <svg
           className="w-full h-full select-none"
           viewBox="0 0 600 460"
         >
+          {/* Zoom and Pan Transformed Group */}
+          <g
+            transform={`translate(${pan.x}, ${pan.y}) scale(${zoom})`}
+            style={{ transformOrigin: "300px 230px", transition: isDragging ? "none" : "transform 0.15s ease-out" }}
+          >
           {/* Concentric Guide Rings */}
           <circle
             cx={centerX}
@@ -297,6 +394,7 @@ export const EgoGraphSvg: React.FC = () => {
             >
               {graph.center.sub}
             </text>
+          </g>
           </g>
         </svg>
 

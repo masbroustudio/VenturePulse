@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { TurnMessage } from "@/types/agent";
 import { useAppStore } from "@/lib/store";
+import { MarkdownContent } from "@/components/chat/MarkdownContent";
 import { Check, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react";
 
 interface DebateFeedProps {
@@ -95,9 +96,9 @@ export const DebateFeed: React.FC<DebateFeedProps> = ({
                 </span>
               </div>
 
-              <p className="text-ink dark:text-darkInk leading-relaxed font-sans text-xs">
-                {turn.content}
-              </p>
+              <div className="leading-relaxed font-sans text-xs">
+                <MarkdownContent content={turn.content} />
+              </div>
 
               {turn.thought_reasoning && (
                 <details className="bg-subtle dark:bg-darkSubtle p-2 rounded border border-editorial text-[11px] text-inkMuted dark:text-darkMuted cursor-pointer group">
