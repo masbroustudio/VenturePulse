@@ -148,16 +148,31 @@ export const ChatWorkspace: React.FC = () => {
                   </div>
                 )}
 
+                {/* Live Querying / Thinking Pulse Indicator */}
+                {msg.role === "assistant" && !msg.content && isStreaming && (
+                  <div className="flex items-center space-x-2 text-inkMuted dark:text-darkMuted text-xs py-2 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-terracotta animate-ping"></span>
+                    <span className="italic">Querying Qloo 250M+ Taste Graph & synthesizing unit economics...</span>
+                  </div>
+                )}
+
                 {/* Message Content */}
-                <div
-                  className={`p-3.5 rounded text-xs font-sans leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-paper dark:bg-darkSubtle border border-editorial text-ink dark:text-darkInk inline-block max-w-xl text-left"
-                      : "text-ink dark:text-darkInk bg-transparent"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{msg.content}</p>
-                </div>
+                {msg.content && (
+                  <div
+                    className={`p-3.5 rounded text-xs font-sans leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-paper dark:bg-darkSubtle border border-editorial text-ink dark:text-darkInk inline-block max-w-xl text-left"
+                        : "text-ink dark:text-darkInk bg-transparent"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">
+                      {msg.content}
+                      {isStreaming && msg.role === "assistant" && !msg.artifact && (
+                        <span className="inline-block w-1.5 h-3 ml-1 bg-terracotta animate-pulse"></span>
+                      )}
+                    </p>
+                  </div>
+                )}
 
                 {/* Rich Artifact: Interactive Proposal Card */}
                 {msg.artifact && (
