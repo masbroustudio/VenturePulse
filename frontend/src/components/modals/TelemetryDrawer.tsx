@@ -17,6 +17,7 @@ export const TelemetryDrawer: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          query: queryText,
           query_text: queryText,
           top_k: 5,
         }),

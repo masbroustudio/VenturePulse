@@ -32,7 +32,8 @@ class InsightsRequest(BaseModel):
     sample_size: int = 15
 
 class VectorSearchRequest(BaseModel):
-    query: str
+    query: Optional[str] = None
+    query_text: Optional[str] = None
     top_k: int = 5
 
 class StartDebateRequest(BaseModel):
@@ -104,11 +105,13 @@ async def get_insights(req: InsightsRequest):
 # 4. VECTOR SEMANTIC SEARCH
 @router.post("/vector/search")
 async def search_vector(req: VectorSearchRequest):
-    results = storage.search_semantic_entities(req.query, top_k=req.top_k)
+    search_q = req.query or req.query_text or ""
+    results = storage.search_semantic_entities(search_q, top_k=req.top_k)
     return {
-        "query": req.query,
+        "query": search_q,
         "count": len(results),
-        "results": results
+        "results": results,
+        "matches": results
     }
 
 # 4. START DELIBERATION
