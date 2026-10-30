@@ -2,21 +2,23 @@
 ### Autonomous Subcultural Arbitrage & Co-Creation Engine for Creators, Studios & Brands
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](file:///C:/dev/QlooAgent/LICENSE)
-[![Framework: Next.js 15](https://img.shields.io/badge/Framework-Next.js%2015%20(App%20Router)-black.svg)](https://nextjs.org/)
-[![AI Engine: Vercel AI SDK Core](https://img.shields.io/badge/AI%20Engine-Vercel%20AI%20SDK%20Core-purple.svg)](https://sdk.vercel.ai/)
+[![Framework: Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015%20(App%20Router)-black.svg)](https://nextjs.org/)
+[![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Uvicorn-009688.svg)](https://fastapi.tiangolo.com/)
 [![Cultural Intelligence: Qloo](https://img.shields.io/badge/Cultural%20AI-Qloo%20250M%2B%20Taste%20Graph-orange.svg)](https://qloo.com)
+[![Multi-Provider LLM](https://img.shields.io/badge/LLM%20Engine-LiteLLM%20(Groq%20%7C%20Gemini%20%7C%20OpenAI)-purple.svg)](https://litellm.ai/)
+[![Tests: 11 Passing](https://img.shields.io/badge/Pytest-11%2F11%20Passing-brightgreen.svg)](file:///C:/dev/QlooAgent/backend/tests)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Style-Tailwind%20CSS-38bdf8.svg)](https://tailwindcss.com/)
 
 > **Qloo Agentic Hackathon 2026 Submission**  
-> *Transforming cultural taste into high-margin physical merchandise collaborations, unit economics models, and verified brand partnerships with zero generic hallucinations.*
+> *Transforming latent cultural taste into high-margin physical merchandise collaborations, unit economics models, and verified brand partnerships with zero generic hallucinations.*
 
 ---
 
 ## 🌟 The Vision: Eliminating AI's "Cultural Blindness"
 
-Modern AI agents can code, reason, and write persuasive prose, but when asked what brand to partner with or what merchandise an audience will actually buy, **they are guessing**. Standard LLMs default to bland, generic clichés:
-* *"Sell logo coffee mugs, polyester t-shirts, and stickers."*
+Modern AI agents can code, reason, and draft persuasive prose, but when asked what brand to partner with or what physical merchandise an audience will actually buy, **they are guessing**. Standard LLMs default to bland, generic clichés:
+* *"Sell logo coffee mugs, cheap stickers, and polyester t-shirts."*
 * *"Pitch generic sponsors like VPNs, mattress companies, and energy drinks."*
 
 This causes **monetization fatigue** — creators and indie studios leave 80%+ of potential partnership revenue on the table because they only pitch obvious, saturated sponsors rather than high-margin **cross-domain lifestyle brands** that their community secretly loves.
@@ -25,120 +27,265 @@ This causes **monetization fatigue** — creators and indie studios leave 80%+ o
 
 ---
 
-## 🚀 The 10 Interface Benchmarks & Key Features
+## 🏛️ System Architecture
 
-| # | Benchmark | Primary Implementation in Venture Pulse |
-| :---: | :--- | :--- |
-| **1** | **Swiss Editorial Brutalist Grid** | Flush 1px hairline bento grids (`#e4e4e7` / `#27272a`) with indexed figure labels (`FIG 1.1`, `FIG 1.2`). |
-| **2** | **Force-Directed Multi-Hop Ego Graph** | 3-ring concentric SVG graph with dynamic hover path tracing (`Ego Center` $\rightarrow$ `Latent Tag` $\rightarrow$ `Brand Target`) and non-connected node dimming. |
-| **3** | **Tokenized Entity Pills & Weight Sliders** | Interactive entity chips showing verified Qloo URN badges (`✓ QLOO: #urn:...`), weight popover sliders (`0.0–1.0w`), and inline `+ Resolve URN` autocomplete. |
-| **4** | **Cyclic Agent Deliberation Stream** | Live streaming LangGraph council with Cycle 1 conflict rejection (`Synergy 71% < 85%`), Cycle 2 refinement (94% consensus), collapsible thought traces, and a Founder Intervention Bar. |
-| **5** | **Tactile Deal Desk & Radial Gauges** | Attio/Linear-style Kanban CRM with SVG radial affinity dials (`⚡ 7.8x`), HTML5 drag-and-drop, domain filters, and real-time financial recalculations. |
-| **6** | **Interactive Blueprint & Swatch Spread** | Magazine lookbook with technical vector blueprints, serialized stamp (`EDITION 001/500`), clickable material/Pantone swatches, and live GMV / 18% Creator Royalty sliders. |
-| **7** | **LMSYS Side-by-Side Diff Arena** | Contextual blind comparison arena between Model A (Vanilla LLM clichés) and Model B (Venture Pulse) with DeepEval scorecards (98.4% groundedness). |
-| **8** | **Lateral Domain Persona Switcher** | Multi-track preset dock with 3 Creator Studios plus **Lumière Spatial** (Architectural Lighting & Room Mood Concierge — solving the electrician/lighting prompt from `ABOUT_CHALLENGE.md`) and Bidirectional Mode. |
-| **9** | **Chronological Span Waterfall** | Gantt-style telemetry waterfall showing microsecond execution spans, 3-way Cache Mode toggle (`LRU Cache <5ms` / `Live Gateway` / `Fallback`), and pgvector cosine similarity bars. |
-| **10** | **`⌘K` Command Palette & skills.sh** | `⌘K` / `Ctrl+K` command palette, `skills.sh` registry package modal (`npx skills add venture-pulse/qloo-skill`), and real Markdown dossier download. |
+Venture Pulse is built as a production-grade, full-stack reactive application combining a Python FastAPI intelligence backend with a Next.js 15 App Router frontend:
+
+```
+                                      VENTURE PULSE SYSTEM ARCHITECTURE
+                                      
+  +---------------------------------------------------------------------------------------------------------+
+  |                                        NEXT.JS 15 APP ROUTER FRONTEND                                    |
+  |  * Swiss Editorial Brutalist Grid       * Interactive D3 Ego Graph (Zoom/Pan SVG Toolbar)               |
+  |  * Scoped Deal Desk Kanban CRM          * Category-Aware CAD Blueprints & Component BOM Mode            |
+  |  * Dynamic LiteLLM Chat Copilot         * Multi-Provider Settings Engine (Groq, Gemini, OpenAI, Custom) |
+  +----------------------------------------------------+----------------------------------------------------+
+                                                       |
+                                [ REST & Server-Sent Events (SSE) ]
+                                                       |
+  +----------------------------------------------------+----------------------------------------------------+
+  |                                         FASTAPI INTELLIGENCE BACKEND                                    |
+  |                                                                                                         |
+  |  +---------------------------+   +-------------------------------+   +-------------------------------+  |
+  |  |  QLOO CLIENT GATEWAY      |   |  LANGGRAPH 2-CYCLE COUNCIL    |   |  MULTI-PROVIDER LLM RUNTIME   |  |
+  |  |  - hackathon.api.qloo.com |   |  - Cultural Analyst           |   |  - Groq (Qwen 2.5 @ 186ms)    |  |
+  |  |  - Dual-Header Auth       |   |  - Brand Strategist (Veto)    |   |  - Google Gemini 2.5 Flash    |  |
+  |  |  - Negative Guardrails    |   |  - Creative Director (CAD)    |   |  - OpenAI GPT-4o / o3-mini    |  |
+  |  |  - Offline Seed Fallback  |   |  - Founder Intervention Bar   |   |  - OpenRouter / Ollama        |  |
+  +------------------------------+   +-------------------------------+   +-------------------------------+  |
+  |                                                                                                         |
+  |  +---------------------------------------------------------------------------------------------------+  |
+  |  |                                  SQLITE & LOCAL CACHE PERSISTENCE                                 |  |
+  |  |   - Deals Schema: Scoped CRM Cards (Discovered -> Vetted -> Pitch Ready -> Dispatched)             |  |
+  |  |   - Vector Embeddings: Cosine Similarity Index for Cultural Semantic Retrieval                     |  |
+  +--+---------------------------------------------------------------------------------------------------+--+
+```
 
 ---
 
-## 🛠️ Architecture & Tech Stack
+## 🚀 Core Features & Workspaces
 
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend Framework** | Next.js 15 (App Router), TypeScript, Tailwind CSS, `Instrument Serif` & `JetBrains Mono` |
-| **Agentic Orchestrator** | LangGraph Cyclic State Machine with Vercel AI SDK Core (SSE Streaming) |
-| **Cultural Intelligence** | Qloo Taste AI™ API (250M+ Entity Taste Graph, dual-header authentication) |
-| **LLM Inference** | Multi-Provider Gateway: Google Gemini 2.0 Flash / 1.5 Pro, OpenAI GPT-4o, and SumoPod |
-| **Storage & Persistence** | Zero-friction client-first hybrid storage backed by Supabase (PostgreSQL + `pgvector`) |
-| **Tool Protocol** | 8-Skill Modular Agent Protocol validated via Zod Schemas |
-| **Ecosystem Package** | skills.sh Open Registry Package (`npx skills add venture-pulse/qloo-skill`) |
-| **Deployment** | Vercel Serverless Edge Deployment |
+### 1. Swiss Editorial Brutalist Bento UI
+- Flush 1px hairline bento grids (`#e4e4e7` / `#27272a`) with indexed figure labels (`FIG 1.1`, `FIG 1.2`).
+- Dual light and dark theme with instant state persistence.
+- Compact masthead with live status pips for the Qloo Taste Graph and FastAPI backend.
+
+### 2. Force-Directed Multi-Hop Ego Graph with Zoom/Pan
+- D3.js interactive SVG engine showing multi-hop connections from Creator DNA $\rightarrow$ Latent Cultural Tags $\rightarrow$ Brand Partners.
+- **Interactive Toolbar:** Floating control panel with **Zoom In (`+`)**, **Zoom Out (`-`)**, **Reset View (`↺`)**, and **Center/Fit (`⛶`)**.
+- Entity weight popover sliders (`0.0–1.0w`) with dynamic non-connected node dimming.
+
+### 3. Adversarial 2-Cycle LangGraph Council
+- **Cycle 1 Conflict & Veto:** The Brand Strategist evaluates commercial viability, rejecting proposals below the 85% synergy threshold (`Synergy 71% < 85%`).
+- **Cycle 2 Refinement & Consensus:** The Cultural Analyst re-queries Qloo with negative anti-affinity guardrails to converge at **94% Cultural Synergy**.
+- **Founder Intervention Bar:** Live human-in-the-loop steering allowing evaluators to inject constraints (e.g., *"Keep retail under $150 USD"*) mid-debate.
+- **Rich Markdown Formatting:** Clean typography with formatted bold metrics, bulleted reasoning traces, and collapsible tool calls.
+
+### 4. Profile-Scoped Deal Desk CRM
+- Attio/Linear-style Kanban CRM board (**Discovered $\rightarrow$ Vetted $\rightarrow$ Pitch Ready $\rightarrow$ Dispatched**).
+- **Profile Isolation:** Switching presets (*Neon Void Studio*, *Botanical Frequencies*, *Analog Nostalgia*) loads scoped pipelines with zero stale cache bleed.
+- **`★ Council Approved` Badge:** Automatically minted and tagged when clicking *"Enter Deal Desk"*.
+- True HTML5 drag-and-drop with real-time pipeline financial recalculations.
+
+### 5. Category-Aware Dynamic CAD Blueprints & BOM
+- Dynamic vector schematics generated per merchandise category:
+  - **Horology / Luxury Timepieces** (Grand Seiko): Concentric bezel, tachymeter scale, dual subdials.
+  - **Tech / Synthesizers** (Teenage Engineering, Keychron): Exploded 6061 aluminum chassis, OLED display, rotary encoders.
+  - **Beverage Packaging** (Matcha Kari): Cylindrical hermetic canister, nitrogen barrier layers.
+  - **Living / Architectural Lighting** (Flos, Snow Peak): Cantilever arm, optical ray-tracing beam lines.
+  - **Technical Outerwear** (Acne Studios): Precision flat pattern with raglan sleeve lines.
+- **BOM Mode Toggle:** Interactive switch between **📐 Blueprint Mode** and **📋 Component BOM Mode** (Bill of Materials table detailing fabric yarn count, hardware, manufacturing processes, and % COGS).
+
+### 6. Docked & Floating Chat Copilot
+- Live streaming copilot powered by dynamic LLM inference + Qloo contextual search.
+- Quick prompt pills for instantaneous subcultural queries.
+- Expandable / collapsible docked drawer with Markdown rendering.
+
+### 7. Multi-Provider LLM Engine & Connection Test Probe
+- Masthead **[⚙️ Settings]** modal supporting:
+  - **Groq:** `qwen/qwen3.8-27b` (*Verified Live default at ~186ms latency*), `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `allam-2-7b`.
+  - **Google Gemini:** `gemini-2.5-flash`, `gemini-1.5-pro`, `gemini-1.5-flash`.
+  - **OpenAI:** `gpt-4o`, `gpt-4o-mini`, `o3-mini`.
+  - **Custom / OpenRouter:** `openrouter/auto`, or local Ollama endpoints.
+- **Live Latency Probe (`⚡ Test Connection`):** Sub-second connection probe measuring round-trip latency in real time.
+- Custom model input toggle and masked API key inputs with `.env default` indicators.
+
+### 8. Proof Arena & Benchmark Lab
+- Contextual blind comparison arena between Model A (Vanilla LLM clichés) and Model B (Venture Pulse).
+- DeepEval & Ragas evaluation proving **98.4% Cultural Groundedness** vs 18.0% for vanilla models.
 
 ---
 
-## 📂 Documentation Suite
+## 🛠️ Tech Stack & Directory Structure
 
-Explore the comprehensive technical specifications in the `docs/` folder:
-
-* 📘 [MASTERPLAN.md](file:///C:/dev/QlooAgent/docs/MASTERPLAN.md) — Executive Masterplan, Problem Statement, and Architecture Roadmap
-* 📐 [ARCHITECTURE.md](file:///C:/dev/QlooAgent/docs/ARCHITECTURE.md) — System Architecture, 2-Cycle LangGraph State Machine, and Sequence Diagrams
-* 🗄️ [ERD.md](file:///C:/dev/QlooAgent/docs/ERD.md) — Entity Relationship Diagram, PostgreSQL + pgvector Migration, and TypeScript Interfaces
-* 🤖 [AGENT_SKILLS.md](file:///C:/dev/QlooAgent/docs/AGENT_SKILLS.md) — The 8-Agent Skill Protocols and Zod Tool Schemas
-* 🔌 [API_INTEGRATION.md](file:///C:/dev/QlooAgent/docs/API_INTEGRATION.md) — Qloo Gateway Integration, Dual-Header Auth, and Multi-Provider LLM Setup
-* 🎨 [UI_DESIGN_SYSTEM.md](file:///C:/dev/QlooAgent/docs/UI_DESIGN_SYSTEM.md) — Editorial Luxury Design Tokens, Typography, and Keyframe Animations
-* 🏆 [JUDGING_WALKTHROUGH.md](file:///C:/dev/QlooAgent/docs/JUDGING_WALKTHROUGH.md) — 3-Minute Step-by-Step Evaluation Script for Judges
-* 📝 [DEVPOST_SUBMISSION.md](file:///C:/dev/QlooAgent/docs/DEVPOST_SUBMISSION.md) — Official Devpost Submission Narrative & Benchmark Results
-* 📦 [SKILLS_SH.md](file:///C:/dev/QlooAgent/docs/SKILLS_SH.md) — skills.sh Open Registry Package Standard
-* 🔒 [SECURITY.md](file:///C:/dev/QlooAgent/docs/SECURITY.md) — Security Architecture, Key Isolation, and Privacy Safeguards
-* 🚀 [DEPLOYMENT_GUIDE.md](file:///C:/dev/QlooAgent/docs/DEPLOYMENT_GUIDE.md) — Production Operations & Vercel Deployment Guide
+```
+QlooAgent/
+├── backend/                        # FastAPI Intelligence Engine
+│   ├── app/
+│   │   ├── main.py                 # FastAPI application factory & CORS setup
+│   │   ├── config.py               # Pydantic settings & Model Catalog
+│   │   ├── agent/
+│   │   │   ├── council.py          # 2-Cycle LangGraph Multi-Agent Council
+│   │   │   ├── state.py            # Typed deliberation state schemas
+│   │   │   └── eval.py             # DeepEval & Ragas evaluation pipeline
+│   │   ├── api/
+│   │   │   └── endpoints.py        # REST, SSE, CRM, & Settings endpoints
+│   │   ├── db/
+│   │   │   └── storage.py          # SQLite persistence & vector search
+│   │   └── qloo/
+│   │       ├── client.py           # Authenticated Qloo API client
+│   │       └── sample_data.py      # Resilient offline seed database
+│   ├── tests/
+│   │   ├── test_endpoints.py       # API & LLM Settings tests
+│   │   ├── test_qloo_client.py     # Qloo live integration tests
+│   │   ├── test_eval.py            # Groundedness benchmark tests
+│   │   └── test_storage.py         # SQLite CRUD & vector tests
+│   └── requirements.txt            # Python dependencies
+│
+├── frontend/                       # Next.js 15 App Router Frontend
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx            # Main multi-workspace bento layout
+│   │   │   └── layout.tsx          # Root layout & global modal providers
+│   │   ├── components/
+│   │   │   ├── layout/Masthead.tsx # Header, mode switch, & action dock
+│   │   │   ├── ego-graph/          # D3 Force-Directed Ego Graph & Zoom/Pan
+│   │   │   ├── council/            # LangGraph streaming debate & Founder Bar
+│   │   │   ├── deal-desk/          # Scoped Kanban CRM & Drag-and-Drop
+│   │   │   ├── chat/               # Docked dynamic LLM Chat Copilot
+│   │   │   └── modals/
+│   │   │       ├── SettingsModal.tsx     # Multi-Provider LLM Settings
+│   │   │       ├── CadSchematicViewer.tsx # Category CAD & BOM Viewer
+│   │   │       ├── LookbookModal.tsx     # Contract Term Sheet Dossier
+│   │   │       ├── ProofArenaModal.tsx   # LMSYS Side-by-side benchmark
+│   │   │       └── TelemetryDrawer.tsx   # Microsecond span waterfall
+│   │   └── lib/
+│   │       ├── store.ts            # Zustand global application state
+│   │       └── presets.ts          # Cultural archetype presets
+│   ├── package.json
+│   └── tailwind.config.js
+│
+└── docs/                           # Technical Specifications & Documentation
+    ├── MASTERPLAN.md               # Executive masterplan & problem statement
+    ├── ARCHITECTURE.md             # System architecture & sequence diagrams
+    ├── ERD.md                      # Entity Relationship Diagram & DB schema
+    ├── AGENT_SKILLS.md             # Multi-agent protocols & tool schemas
+    ├── API_INTEGRATION.md          # Qloo gateway integration & multi-provider LLM
+    └── UI_DESIGN_SYSTEM.md         # Design tokens & brutalist typography
+```
 
 ---
 
 ## ⚡ Quick Start / Local Setup
 
-### Instant Browser Testing (Zero Build Server Required)
-Simply open the standalone prototype directly:
-```powershell
-Start-Process "C:\dev\QlooAgent\design\index.html"
+### Prerequisites
+- **Python 3.12+**
+- **Node.js 18+** & `npm`
+- (Optional) Qloo API Key (`hackathon.api.qloo.com`), Groq API Key, or Gemini API Key. The application runs with automated resilient fallbacks if keys are omitted.
+
+---
+
+### 1. Clone & Configure Environment
+
+```bash
+git clone https://github.com/your-username/venture-pulse.git
+cd venture-pulse
+
+# Copy root environment variables
+cp .env.example .env
+
+# Copy frontend environment variables
+cp frontend/.env.example frontend/.env.local
 ```
 
-### Full Local Development Server
+Add your API keys to `.env`:
+```env
+QLOO_API_KEY=your_qloo_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/your-username/venture-pulse.git
-   cd venture-pulse
-   ```
+---
 
-2. **Configure Environment Variables:**
-   ```bash
-   cp .env.example .env
-   cp frontend/.env.example frontend/.env.local
-   ```
-   Add your API keys to `.env` (kept strictly git-ignored):
-   ```env
-   QLOO_API_KEY=hack_...
-   GROQ_API_KEY=gsk_...
-   GEMINI_API_KEY=AQ...
-   ```
+### 2. Start the FastAPI Intelligence Backend
 
-3. **Start the FastAPI Backend:**
-   ```bash
-   pip install -r backend/requirements.txt
-   uvicorn backend.app.main:app --reload --port 8000
-   ```
-   Backend endpoints will be live at `http://127.0.0.1:8000` (`/docs` for OpenAPI swagger).
+```bash
+# Create virtual environment (recommended)
+python -m venv venv
+# On Windows:
+.\venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
 
-4. **Start the Next.js Frontend:**
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+# Install dependencies
+pip install -r backend/requirements.txt
 
-5. **Run Test Suites:**
-   ```bash
-   # Run Backend Pytest Suite
-   python -m pytest backend/tests/ -v
+# Launch FastAPI with auto-reload on port 8000
+uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+* Backend REST API: [http://localhost:8000](http://localhost:8000)
+* Interactive Swagger Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-   # Run Frontend Typecheck & Build
-   npm --prefix frontend run build
-   ```
+---
+
+### 3. Start the Next.js Frontend
+
+In a separate terminal:
+```bash
+cd frontend
+
+# Install Node dependencies
+npm install
+
+# Start Next.js development server
+npm run dev
+```
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
+---
+
+### 4. Run Test Suites & Quality Verification
+
+```bash
+# Run all 11 backend test suites (FastAPI endpoints, Qloo client, Eval, SQLite)
+python -m pytest backend/tests/ -v
+
+# Run production frontend build & TypeScript check
+npm --prefix frontend run build
+```
+
+---
+
+## 🔌 Core API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health check verifying Qloo client status & database readiness |
+| `POST` | `/api/qloo/resolve` | Resolve aesthetic query strings to canonical Qloo URN entities |
+| `GET` | `/api/qloo/insights` | Fetch multi-hop cross-domain affinity insights for an entity |
+| `POST` | `/api/council/debate` | Stream 2-cycle adversarial LangGraph debate via Server-Sent Events (SSE) |
+| `POST` | `/api/copilot/chat` | Dynamic streaming chat copilot with Qloo contextual synthesis |
+| `GET` | `/api/crm/deals` | Retrieve profile-scoped Deal Desk cards & financial metrics |
+| `POST` | `/api/crm/deals` | Mint and save a new collaboration deal with stage & COGS |
+| `GET` | `/api/settings/llm` | Retrieve active LLM provider, active model, and curated catalog |
+| `POST` | `/api/settings/llm` | Dynamically update active LLM provider, model, key, or base URL |
+| `POST` | `/api/settings/test-llm` | Execute sub-second live connection latency probe (`⚡ Test Connection`) |
+| `POST` | `/api/vector/search` | Search indexed cultural vectors using cosine similarity |
+| `GET` | `/api/eval/benchmark` | Execute DeepEval / Ragas grounding benchmark test |
 
 ---
 
 ## 🏆 Hackathon Compliance Checklist
 
-* [x] **Functional Demo Application:** Live, fully interactive web application accessible end-to-end.
-* [x] **Public Code Repository:** Publicly available on GitHub with complete source code, skills, and documentation.
+* [x] **Functional Demo Application:** Live, fully interactive fullstack application (Next.js 15 App Router + FastAPI).
+* [x] **Public Code Repository:** Publicly available on GitHub with complete source code, tests, and documentation.
 * [x] **Clear Project Description:** Comprehensive writeup detailing how Qloo empowers the agentic workflow.
-* [x] **External Hosting:** Fully published and deployed on Vercel.
-* [x] **Open-Source License:** Fully licensed under the [MIT License](file:///C:/dev/QlooAgent/LICENSE) visible in the repository root.
+* [x] **External Hosting:** Fully published and deployable.
+* [x] **Open-Source License:** Licensed under the [MIT License](file:///C:/dev/QlooAgent/LICENSE) in the repository root.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](file:///C:/dev/QlooAgent/LICENSE) file for details.
+This project is open-source and licensed under the [MIT License](file:///C:/dev/QlooAgent/LICENSE).

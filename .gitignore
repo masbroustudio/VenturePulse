@@ -54,3 +54,8 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Private Hackathon Submissions & Pitch Assets (NEVER COMMIT OR PUSH)
+submission/
+/submission/
+
