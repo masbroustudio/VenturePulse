@@ -10,6 +10,7 @@ import { DagPipeline } from "@/components/council/DagPipeline";
 import { DebateFeed } from "@/components/council/DebateFeed";
 import { FounderBar } from "@/components/council/FounderBar";
 import { KanbanBoard } from "@/components/dealdesk/KanbanBoard";
+import { ChatWorkspace } from "@/components/chat/ChatWorkspace";
 import { useDebateStream } from "@/hooks/useDebateStream";
 import { Sparkles, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 
@@ -130,6 +131,15 @@ export default function HomePage() {
       {activeView === "kanban" && (
         <section className="space-y-6">
           <KanbanBoard />
+        </section>
+      )}
+
+      {/* ======================================================== */}
+      {/* VIEW 4: CONVERSATIONAL CULTURAL COPILOT                  */}
+      {/* ======================================================== */}
+      {activeView === "chat" && (
+        <section className="space-y-6">
+          <ChatWorkspace />
         </section>
       )}
     </div>

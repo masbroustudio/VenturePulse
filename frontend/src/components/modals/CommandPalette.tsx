@@ -52,6 +52,17 @@ export const CommandPalette: React.FC = () => {
 
   const actions = [
     {
+      id: "view-chat",
+      title: "Jump to Chat Copilot (Conversational Strategist)",
+      category: "Navigation",
+      icon: <MessageSquare className="w-4 h-4 text-purple-500" />,
+      run: () => {
+        setActiveView("chat");
+        setCommandPaletteOpen(false);
+        showToast("Switched to Chat Copilot");
+      },
+    },
+    {
       id: "view-wizard",
       title: "Jump to View 1: Studio & Ego Graph",
       category: "Navigation",

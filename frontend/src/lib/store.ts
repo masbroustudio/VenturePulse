@@ -3,12 +3,13 @@ import { CreatorOrBrandProfile } from "@/types/qloo";
 import { CREATOR_PRESETS, BRAND_PRESETS } from "@/lib/presets";
 
 export type AppMode = "creator" | "brand";
-export type AppView = "wizard" | "debate" | "kanban";
+export type AppView = "wizard" | "debate" | "kanban" | "chat";
 
 interface AppState {
   mode: AppMode;
   theme: "light" | "dark";
   activeView: AppView;
+  lastStudioView: "wizard" | "debate" | "kanban";
   activePresetIdx: number;
   activeProfile: CreatorOrBrandProfile;
   activeEditingChip: number | null;
@@ -23,6 +24,7 @@ interface AppState {
   toggleMode: () => void;
   toggleTheme: () => void;
   setActiveView: (view: AppView) => void;
+  toggleChatView: () => void;
   applyPreset: (idx: number) => void;
   setProfileName: (name: string) => void;
   setProfileCategory: (category: string) => void;
@@ -43,6 +45,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   mode: "creator",
   theme: "light",
   activeView: "wizard",
+  lastStudioView: "wizard",
   activePresetIdx: 0,
   activeProfile: JSON.parse(JSON.stringify(CREATOR_PRESETS[0])),
   activeEditingChip: null,
@@ -82,7 +85,25 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  setActiveView: (view) => set({ activeView: view }),
+  setActiveView: (view) => {
+    if (view !== "chat") {
+      set({ activeView: view, lastStudioView: view });
+    } else {
+      set({ activeView: view });
+    }
+  },
+
+  toggleChatView: () => {
+    const current = get().activeView;
+    if (current === "chat") {
+      const target = get().lastStudioView || "wizard";
+      set({ activeView: target });
+      get().showToast(`Switched to Studio Workspace (${target})`);
+    } else {
+      set({ lastStudioView: current, activeView: "chat" });
+      get().showToast("Switched to Cultural Copilot Chat");
+    }
+  },
 
   applyPreset: (idx) => {
     const presets = get().mode === "creator" ? CREATOR_PRESETS : BRAND_PRESETS;

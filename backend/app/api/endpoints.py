@@ -265,3 +265,69 @@ async def get_benchmark_scorecard():
         proposed_partnerships=["Acne Studios", "Teenage Engineering", "Keychron"]
     )
     return scorecard
+
+# 9. COPILOT CHAT STREAMING & DIRECT CRM DEAL CREATION
+class CreateDealRequest(BaseModel):
+    card_id: Optional[str] = None
+    session_id: Optional[str] = None
+    brand_name: str
+    title: Optional[str] = None
+    category: str = "apparel"
+    affinity_multiplier: str = "7.5x"
+    synergy_score: float = 0.92
+    stage: str = "Discovered"
+    msrp: float = 185.0
+    run_units: int = 500
+    gmv: float = 92500.0
+    spec: Optional[Dict[str, Any]] = None
+
+@router.post("/crm/deals")
+async def create_deal(req: CreateDealRequest):
+    card_id = req.card_id or f"deal_{uuid.uuid4().hex[:8]}"
+    storage.save_deal(
+        card_id=card_id,
+        session_id=req.session_id or "chat",
+        brand_name=req.brand_name,
+        category=req.category,
+        affinity_multiplier=req.affinity_multiplier,
+        synergy_score=req.synergy_score,
+        stage=req.stage,
+        msrp=req.msrp,
+        run_units=req.run_units,
+        gmv=req.gmv,
+        title=req.title,
+        spec_json=json.dumps(req.spec) if req.spec else None
+    )
+    return {"status": "CREATED", "card_id": card_id, "brand_name": req.brand_name}
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+    mode: str = "creator"
+    profile_name: str = "Neon Void Studio"
+    anchors: Optional[List[str]] = None
+    history: Optional[List[ChatMessage]] = None
+
+@router.post("/chat")
+async def chat_copilot_stream(req: ChatRequest):
+    council = AgentCouncil()
+    history_dicts = [{"role": m.role, "content": m.content} for m in req.history] if req.history else None
+
+    async def event_generator():
+        async for item in council.run_copilot_chat_stream(
+            message=req.message,
+            mode=req.mode,
+            profile_name=req.profile_name,
+            anchors=req.anchors,
+            history=history_dicts
+        ):
+            yield {
+                "event": item["event"],
+                "data": json.dumps(item["data"])
+            }
+
+    return EventSourceResponse(event_generator())

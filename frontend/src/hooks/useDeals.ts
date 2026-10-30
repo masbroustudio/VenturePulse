@@ -60,7 +60,7 @@ export function useDeals() {
 
   // Normalize data with activeProfile cards as fallback/enrichment
   const activeCards = activeProfile.cards || [];
-  const mergedDeals = data?.deals || activeCards.map((c, i) => ({
+  const mergedDeals: DealCardData[] = data?.deals || activeCards.map((c, i): DealCardData => ({
     card_id: `card_${i + 1}`,
     brand_name: c.brand,
     title: c.title,
