@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppStore } from "@/lib/store";
-import { Moon, Sun, Activity, Zap, Search, ShieldCheck, MessageSquare, LayoutGrid } from "lucide-react";
+import { Moon, Sun, Activity, Zap, Search, ShieldCheck, MessageSquare, LayoutGrid, Network, Server } from "lucide-react";
 
 export function Masthead() {
   const {
@@ -62,21 +62,45 @@ export function Masthead() {
           >
             VP
           </div>
-          <div>
+          <div className="flex items-center space-x-2">
             <span className="font-serif italic text-2xl tracking-tight text-ink dark:text-darkInk">Venture Pulse</span>
-            <span className="hidden md:inline-flex ml-2.5 items-center space-x-1.5 text-[10px] uppercase font-mono tracking-widest text-inkMuted dark:text-darkMuted bg-subtle dark:bg-darkSubtle px-2 py-0.5 rounded border border-editorial">
+
+            {/* Qloo 250M+ Taste Graph Icon Button */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setTelemetryOpen(true);
+                showToast("Opened Qloo 250M+ Telemetry & Vector Drawer");
+              }}
+              className="inline-flex items-center space-x-1.5 px-2 py-1 rounded bg-subtle dark:bg-darkSubtle border border-editorial hover:border-terracotta text-inkMuted dark:text-darkMuted hover:text-ink dark:hover:text-darkInk transition shadow-sm"
+              title="Qloo Taste Graph (250M+ Entities) • Click to open Telemetry & Vector Drawer"
+            >
+              <Network className="w-3.5 h-3.5 text-terracotta" />
               <span className="w-1.5 h-1.5 rounded-full bg-emerald animate-pulse"></span>
-              <span>Qloo 250M+ Taste Graph</span>
-            </span>
-            {/* Live FastAPI status pill */}
-            <span
+            </button>
+
+            {/* Live FastAPI + Groq status icon button */}
+            <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 checkBackend(true);
               }}
-              className="hidden lg:inline-flex ml-2 items-center space-x-1.5 text-[10px] uppercase font-mono tracking-widest text-inkMuted dark:text-darkMuted bg-subtle dark:bg-darkSubtle px-2 py-0.5 rounded border border-editorial cursor-pointer hover:border-terracotta transition"
-              title="Click to re-test live FastAPI backend at http://127.0.0.1:8000"
+              className="inline-flex items-center space-x-1.5 px-2 py-1 rounded bg-subtle dark:bg-darkSubtle border border-editorial hover:border-terracotta text-inkMuted dark:text-darkMuted hover:text-ink dark:hover:text-darkInk transition shadow-sm"
+              title={
+                checking
+                  ? "Checking FastAPI Backend (http://127.0.0.1:8000)..."
+                  : backendOnline
+                  ? "FastAPI + Groq Live (Connected) • Click to re-test"
+                  : "FastAPI Backend Offline (Simulated Mode) • Click to reconnect"
+              }
             >
+              <Server
+                className={`w-3.5 h-3.5 ${
+                  backendOnline ? "text-emerald" : "text-inkMuted dark:text-darkMuted"
+                }`}
+              />
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
                   checking
@@ -86,8 +110,7 @@ export function Masthead() {
                     : "bg-zinc-400"
                 }`}
               ></span>
-              <span>{checking ? "Checking..." : backendOnline ? "FastAPI + Groq Live" : "Offline (Simulated)"}</span>
-            </span>
+            </button>
           </div>
         </div>
 
