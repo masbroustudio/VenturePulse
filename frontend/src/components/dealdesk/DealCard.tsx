@@ -58,9 +58,16 @@ export const DealCard: React.FC<DealCardProps> = ({
     >
       {/* Top Header */}
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-subtle dark:bg-darkSubtle border border-editorial text-inkMuted dark:text-darkMuted font-semibold">
-          {deal.category}
-        </span>
+        <div className="flex items-center space-x-1.5 flex-wrap gap-y-1">
+          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-subtle dark:bg-darkSubtle border border-editorial text-inkMuted dark:text-darkMuted font-semibold">
+            {deal.category}
+          </span>
+          {(deal.session_id || deal.card_id?.startsWith("council_")) && (
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-terracotta/10 text-terracotta border border-terracotta/30 font-bold tracking-tight">
+              ★ Council Approved
+            </span>
+          )}
+        </div>
         <div className="flex items-center space-x-1.5" title={`${overlapPct}% demographic overlap`}>
           <span className="text-[10px] font-mono font-bold text-terracotta">
             ⚡ {deal.affinity_multiplier}

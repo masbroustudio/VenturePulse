@@ -18,6 +18,7 @@ export function useDebateStream() {
   const [isConsensus, setIsConsensus] = useState<boolean>(false);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [approvedSpec, setApprovedSpec] = useState<any | null>(null);
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -107,6 +108,19 @@ export function useDebateStream() {
           setSynergyScore("94%");
           setIsConsensus(true);
           setIsRunning(false);
+          setApprovedSpec({
+            title: p.cards[0]?.title || `${p.cards[0]?.brand || "Partner"} Bespoke Capsule`,
+            brand_partner: p.cards[0]?.brand || "Partner Brand",
+            category: p.cards[0]?.domain || "apparel",
+            affinity_multiplier: p.cards[0]?.affinity?.replace("⚡ ", "") || "8.4x",
+            materials: ["Japanese Raw Selvedge", "Anodized Aerospace Aluminum", "Single-Origin Kyoto Tencha"],
+            colorways: ["Midnight Indigo", "Raw Ecru"],
+            msrp_usd: 185.0,
+            run_units: 500,
+            projected_gmv: 92500.0,
+            creator_royalty_pct: 0.18,
+            projected_royalty: 16650.0,
+          });
           showToast("Consensus Achieved: 94% Cultural Synergy");
         }, 1200);
       }, 1200);
@@ -131,6 +145,7 @@ export function useDebateStream() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           profile_name: p.name,
+          profile_id: p.id,
           mode: mode,
           anchors: anchors,
         }),
@@ -177,7 +192,12 @@ export function useDebateStream() {
           setIsConsensus(true);
           setIsRunning(false);
           es.close();
-          queryClient.invalidateQueries({ queryKey: ["crm-deals"] });
+          if (event.product_spec) {
+            setApprovedSpec(event.product_spec);
+          }
+          queryClient.invalidateQueries({
+            queryKey: ["crm-deals", mode, activeProfile.id],
+          });
           showToast(`Live Consensus Achieved: Saved ${event.card_id || "Deal"}`);
         } catch (err) {
           console.error("Parse consensus error:", err);
@@ -193,7 +213,7 @@ export function useDebateStream() {
       console.warn("Backend not reachable, running simulation:", err);
       runSimulation();
     }
-  }, [mode, activeProfile, clearTimers, runSimulation, showToast]);
+  }, [mode, activeProfile, clearTimers, queryClient, runSimulation, showToast]);
 
   const fastForward = useCallback(() => {
     clearTimers();
@@ -205,6 +225,20 @@ export function useDebateStream() {
 
     const isBrand = mode === "brand";
     const p = activeProfile;
+
+    setApprovedSpec({
+      title: p.cards[0]?.title || `${p.cards[0]?.brand || "Partner"} Bespoke Capsule`,
+      brand_partner: p.cards[0]?.brand || "Partner Brand",
+      category: p.cards[0]?.domain || "apparel",
+      affinity_multiplier: p.cards[0]?.affinity?.replace("⚡ ", "") || "8.4x",
+      materials: ["Japanese Raw Selvedge", "Anodized Aerospace Aluminum", "Single-Origin Kyoto Tencha"],
+      colorways: ["Midnight Indigo", "Raw Ecru"],
+      msrp_usd: 185.0,
+      run_units: 500,
+      projected_gmv: 92500.0,
+      creator_royalty_pct: 0.18,
+      projected_royalty: 16650.0,
+    });
 
     setTurns([
       {
@@ -278,6 +312,80 @@ export function useDebateStream() {
     [cycle, sessionId, showToast]
   );
 
+  const enterDealDesk = useCallback(
+    async (onNavigate?: () => void) => {
+      const p = activeProfile;
+      const primaryCard = p.cards?.[0];
+      const brandName =
+        approvedSpec?.brand_partner ||
+        approvedSpec?.brand_name ||
+        primaryCard?.brand ||
+        "Acne Studios";
+      const title =
+        approvedSpec?.title ||
+        primaryCard?.title ||
+        `${brandName} x ${p.name} Capsule Drop`;
+      const category =
+        approvedSpec?.category || primaryCard?.domain || "apparel";
+      const affinity =
+        approvedSpec?.affinity_multiplier ||
+        primaryCard?.affinity?.replace("⚡ ", "") ||
+        "8.4x";
+      const msrp = approvedSpec?.msrp_usd || 185;
+      const runUnits = approvedSpec?.run_units || 500;
+      const gmv = approvedSpec?.projected_gmv || msrp * runUnits;
+
+      const dealPayload = {
+        card_id: `council_${p.id}_${Date.now().toString().slice(-4)}`,
+        session_id: p.id,
+        profile_id: p.id,
+        brand_name: brandName,
+        title: title,
+        category: category,
+        affinity_multiplier: affinity,
+        synergy_score: 0.94,
+        stage: "Pitch Ready",
+        msrp: msrp,
+        run_units: runUnits,
+        gmv: gmv,
+        spec: approvedSpec || {
+          title: title,
+          brand_partner: brandName,
+          category: category,
+          affinity_multiplier: affinity,
+          description: `Deliberated & approved by LangGraph Council with 94% cultural synergy for ${p.name}.`,
+          materials: ["Bespoke Technical Spec", "Archival Hardware", "Custom Packaging"],
+          colorways: ["Obsidian Black", "Editorial Ecru"],
+          msrp_usd: msrp,
+          run_units: runUnits,
+          projected_gmv: gmv,
+          creator_royalty_pct: 0.18,
+          projected_royalty: Math.round(gmv * 0.18),
+          outreach_pitch: `LangGraph Multi-Agent Council verified an authentic 94% cultural alignment between ${p.name} and ${brandName}.`,
+        },
+      };
+
+      try {
+        await fetch("/api/crm/deals", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dealPayload),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["crm-deals", mode, p.id],
+        });
+        showToast(`✓ Council capsule saved: "${title}" in Pitch Ready`);
+      } catch (e) {
+        console.warn("Failed to persist deal to backend:", e);
+      }
+
+      if (onNavigate) {
+        onNavigate();
+      }
+    },
+    [activeProfile, approvedSpec, mode, queryClient, showToast]
+  );
+
   return {
     turns,
     activeDagNode,
@@ -288,5 +396,6 @@ export function useDebateStream() {
     startDebate,
     fastForward,
     injectConstraint,
+    enterDealDesk,
   };
 }

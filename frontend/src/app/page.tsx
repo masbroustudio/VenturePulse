@@ -26,6 +26,7 @@ export default function HomePage() {
     startDebate,
     fastForward,
     injectConstraint,
+    enterDealDesk,
   } = useDebateStream();
 
   // Check backend health on mount
@@ -118,7 +119,7 @@ export default function HomePage() {
           <DebateFeed
             turns={turns}
             isConsensus={isConsensus}
-            onEnterDealDesk={() => setActiveView("kanban")}
+            onEnterDealDesk={() => enterDealDesk(() => setActiveView("kanban"))}
           />
 
           <FounderBar onInjectConstraint={injectConstraint} />

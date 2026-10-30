@@ -40,6 +40,7 @@ class StartDebateRequest(BaseModel):
     mode: str = "creator"  # "creator" or "brand"
     anchors: List[str] = Field(default_factory=lambda: ["Acne Studios", "Synthwave", "Blade Runner 2049"])
     founder_constraints: Optional[List[str]] = None
+    profile_id: Optional[str] = None
 
 class InjectConstraintRequest(BaseModel):
     session_id: str
@@ -116,6 +117,7 @@ async def start_debate(req: StartDebateRequest):
     session_id = f"sess_{uuid.uuid4().hex[:12]}"
     ACTIVE_SESSIONS[session_id] = {
         "profile_name": req.profile_name,
+        "profile_id": req.profile_id or req.profile_name,
         "mode": req.mode,
         "anchors": req.anchors,
         "founder_constraints": req.founder_constraints or []
@@ -123,6 +125,7 @@ async def start_debate(req: StartDebateRequest):
     return {
         "session_id": session_id,
         "profile_name": req.profile_name,
+        "profile_id": req.profile_id or req.profile_name,
         "mode": req.mode,
         "stream_url": f"/api/debate/stream/{session_id}"
     }
@@ -135,6 +138,7 @@ async def stream_debate(session_id: str):
         # Fallback to default preset if session was not pre-registered
         session_data = {
             "profile_name": "Neon Void Studio",
+            "profile_id": "neon-void",
             "mode": "creator",
             "anchors": ["Acne Studios", "Synthwave", "Blade Runner 2049"],
             "founder_constraints": []
@@ -148,7 +152,8 @@ async def stream_debate(session_id: str):
             profile_name=session_data["profile_name"],
             anchors=session_data["anchors"],
             mode=session_data["mode"],
-            founder_constraints=session_data.get("founder_constraints", [])
+            founder_constraints=session_data.get("founder_constraints", []),
+            profile_id=session_data.get("profile_id")
         ):
             yield {
                 "event": item["event"],
@@ -167,10 +172,16 @@ async def inject_constraint(req: InjectConstraintRequest):
 
 # 7. CRM DEALS & STAGE PROGRESSION
 @router.get("/crm/deals")
-async def get_deals(stage: Optional[str] = None):
-    deals = storage.get_deals(stage=stage)
-    # Seed default deals if empty
-    if not deals:
+async def get_deals(
+    stage: Optional[str] = None,
+    session_id: Optional[str] = None,
+    profile_id: Optional[str] = None,
+    mode: Optional[str] = None
+):
+    target_id = profile_id or session_id
+    deals = storage.get_deals(stage=stage, session_id=target_id)
+    # Seed default deals if empty and no specific profile was requested
+    if not deals and not target_id:
         defaults = [
             ("card_1", "Acne Studios", "The 'Midnight Grid' 14oz Selvedge Chore Coat", "apparel", "7.8x", 0.94, "Discovered", 185.0, 500, 92500.0, {
                 "title": "The 'Midnight Grid' 14oz Selvedge Chore Coat",
@@ -270,6 +281,7 @@ async def get_benchmark_scorecard():
 class CreateDealRequest(BaseModel):
     card_id: Optional[str] = None
     session_id: Optional[str] = None
+    profile_id: Optional[str] = None
     brand_name: str
     title: Optional[str] = None
     category: str = "apparel"
@@ -286,7 +298,7 @@ async def create_deal(req: CreateDealRequest):
     card_id = req.card_id or f"deal_{uuid.uuid4().hex[:8]}"
     storage.save_deal(
         card_id=card_id,
-        session_id=req.session_id or "chat",
+        session_id=req.profile_id or req.session_id or "chat",
         brand_name=req.brand_name,
         category=req.category,
         affinity_multiplier=req.affinity_multiplier,

@@ -69,7 +69,8 @@ class AgentCouncil:
         profile_name: str,
         anchors: List[str],
         mode: str = "creator",
-        founder_constraints: Optional[List[str]] = None
+        founder_constraints: Optional[List[str]] = None,
+        profile_id: Optional[str] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Executes the 2-cycle adversarial deliberation, yielding SSE event dictionaries:
@@ -257,11 +258,12 @@ class AgentCouncil:
 
         # Auto-persist session & deal into SQLite
         card_id = f"deal_{uuid.uuid4().hex[:8]}"
+        effective_scope_id = profile_id or session_id
         try:
             self.storage.save_session(session_id, profile_name, mode, state.model_dump())
             self.storage.save_deal(
                 card_id=card_id,
-                session_id=session_id,
+                session_id=effective_scope_id,
                 brand_name=refined_candidate,
                 title=product_spec.title,
                 category=product_spec.category,
@@ -273,7 +275,7 @@ class AgentCouncil:
                 gmv=product_spec.projected_gmv,
                 spec_json=json.dumps(product_spec.model_dump())
             )
-            logger.info(f"Auto-persisted session {session_id} and deal {card_id} into SQLite database.")
+            logger.info(f"Auto-persisted session {session_id} and deal {card_id} (scoped to {effective_scope_id}) into SQLite database.")
         except Exception as e:
             logger.warning(f"Failed to auto-persist deal to database: {e}")
 

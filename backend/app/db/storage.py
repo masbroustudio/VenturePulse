@@ -133,13 +133,19 @@ class Storage:
             """, (card_id, session_id, brand_name, title, category, affinity_multiplier, synergy_score, stage, msrp, run_units, gmv, spec_json))
             conn.commit()
 
-    def get_deals(self, stage: Optional[str] = None) -> List[Dict[str, Any]]:
+    def get_deals(self, stage: Optional[str] = None, session_id: Optional[str] = None) -> List[Dict[str, Any]]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
+            query = "SELECT * FROM deals WHERE 1=1"
+            params = []
             if stage:
-                cursor.execute("SELECT * FROM deals WHERE stage = ? ORDER BY updated_at DESC", (stage,))
-            else:
-                cursor.execute("SELECT * FROM deals ORDER BY updated_at DESC")
+                query += " AND stage = ?"
+                params.append(stage)
+            if session_id:
+                query += " AND (session_id = ? OR session_id = 'all')"
+                params.append(session_id)
+            query += " ORDER BY updated_at DESC"
+            cursor.execute(query, tuple(params))
             rows = cursor.fetchall()
             deals = []
             for row in rows:

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import { useDeals } from "@/hooks/useDeals";
+import { CadSchematicViewer } from "./CadSchematicViewer";
 import { X, Copy, Check, Send } from "lucide-react";
 
 interface Swatch {
@@ -16,7 +17,74 @@ interface Swatch {
 function getCategorySwatches(deal: any): Swatch[] {
   const cat = (deal?.category || "").toLowerCase();
   const brand = (deal?.brand_name || deal?.brand || "").toLowerCase();
+  const title = (deal?.title || deal?.spec?.title || "").toLowerCase();
   const specMaterials: string[] = deal?.spec?.materials || [];
+
+  if (cat.includes("access") || title.includes("watch") || title.includes("chronograph") || brand.includes("seiko")) {
+    return [
+      {
+        id: "titanium",
+        name: specMaterials[0] || "Grade 5 Aerospace Titanium",
+        pantone: "PANTONE 17-5104 Ultimate Gray",
+        hex: "#64748b",
+        detail: "Ultra-lightweight aerospace titanium case with Zaratsu distortion-free polishing",
+      },
+      {
+        id: "sapphire",
+        name: specMaterials[1] || "Double-Curved Sapphire Crystal",
+        pantone: "PANTONE 11-0602 Snow White",
+        hex: "#f8fafc",
+        detail: "9 Mohs hardness scratchproof synthetic corundum with inner anti-reflective AR coating",
+      },
+      {
+        id: "movement",
+        name: specMaterials[2] || "Japanese Mechanical Calibre",
+        pantone: "PANTONE 19-4006 Caviar",
+        hex: "#18181b",
+        detail: "High-beat automatic chronograph escapement with 72-hour power reserve",
+      },
+      {
+        id: "strap",
+        name: specMaterials[3] || "Fluoroelastomer Technical Strap",
+        pantone: "PANTONE 19-3911 Deep Night",
+        hex: "#0f172a",
+        detail: "Heat and chemical resistant matte strap with debossed serialized buckle",
+      },
+    ];
+  }
+
+  if (cat.includes("footwear") || title.includes("shoe") || title.includes("runner") || brand.includes("salomon")) {
+    return [
+      {
+        id: "mesh",
+        name: specMaterials[0] || "Abrasion-Resistant Ripstop Mesh",
+        pantone: "PANTONE 19-4004 Black Onyx",
+        hex: "#18181b",
+        detail: "Single-layer anti-debris hydrophobic weave engineered for Alpine endurance",
+      },
+      {
+        id: "tpu",
+        name: specMaterials[1] || "Thermo-Welded TPU Lateral Cage",
+        pantone: "PANTONE 14-4102 Cool Gray",
+        hex: "#94a3b8",
+        detail: "Seamless structural overlay cradling foot arch with zero pressure points",
+      },
+      {
+        id: "midsole",
+        name: specMaterials[2] || "Dual-Density EVA Energy Cell",
+        pantone: "PANTONE 12-0752 Sulphur Spring",
+        hex: "#eab308",
+        detail: "Supercritical foam matrix providing 68% energy return on uneven terrain",
+      },
+      {
+        id: "rubber",
+        name: specMaterials[3] || "Chevron Contagrip Rubber Lug",
+        pantone: "PANTONE 18-0403 Dark Gull Gray",
+        hex: "#3f3f46",
+        detail: "Deep 5.0mm directional lugs compounded for wet rock and loose scree traction",
+      },
+    ];
+  }
 
   if (cat.includes("tech") || brand.includes("teenage") || brand.includes("keychron")) {
     return [
@@ -249,29 +317,8 @@ ${activeProfile.name} Partnerships Lead`;
               </p>
             </div>
 
-            {/* Technical Vector Blueprint Schematic */}
-            <div className="w-full h-36 bg-surface dark:bg-darkSurface border border-editorial rounded p-3 flex items-center justify-center relative overflow-hidden font-mono text-xs">
-              <svg className="w-full h-full stroke-ink dark:stroke-darkInk" viewBox="0 0 320 120" fill="none">
-                <defs>
-                  <pattern id="cad-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#e4e4e7" strokeWidth="0.5" className="dark:stroke-zinc-800" />
-                  </pattern>
-                </defs>
-                <rect width="320" height="120" fill="url(#cad-grid)" />
-                <path d="M 60 30 L 110 20 L 160 30 L 160 100 L 60 100 Z" strokeWidth="1.5" />
-                <path d="M 160 30 L 210 20 L 260 30 L 260 100 L 160 100 Z" strokeWidth="1.5" />
-                <line x1="160" y1="20" x2="160" y2="105" strokeWidth="1" strokeDasharray="3,2" />
-                <circle cx="110" cy="55" r="4" strokeWidth="1" />
-                <circle cx="210" cy="55" r="4" strokeWidth="1" />
-                <path d="M 75 60 L 95 60 L 95 80 L 75 80 Z" strokeWidth="1" />
-                <path d="M 225 60 L 245 60 L 245 80 L 225 80 Z" strokeWidth="1" />
-                <text x="70" y="112" fontSize="7" fill="#ea580c" fontFamily="monospace">SEAM: 480mm</text>
-                <text x="180" y="112" fontSize="7" fill="#ea580c" fontFamily="monospace">TOLERANCE: ±0.5mm</text>
-              </svg>
-              <span className="absolute top-2 right-2 text-[9px] font-mono text-inkMuted dark:text-darkMuted uppercase">
-                CAD SCHEMATIC 1.0
-              </span>
-            </div>
+            {/* Dynamic Category-Aware CAD Blueprint & Interactive BOM */}
+            <CadSchematicViewer deal={selectedDeal} />
 
             {/* Clickable Material & Pantone Swatches */}
             <div className="space-y-2">
