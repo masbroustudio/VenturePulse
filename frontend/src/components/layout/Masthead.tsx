@@ -155,35 +155,7 @@ export function Masthead() {
             <span className="text-[10px] text-inkMuted dark:text-darkMuted font-normal">⮂</span>
           </button>
 
-          {/* Proof Benchmark Lab (Icon-Only) */}
-          <button
-            onClick={() => setProofModalOpen(true)}
-            className="w-8 h-8 rounded border border-editorial bg-surface dark:bg-darkSurface flex items-center justify-center text-ink dark:text-darkInk hover:border-emerald transition text-xs hidden sm:flex"
-            title="Proof Benchmark Lab (LMSYS Arena Diff & DeepEval Scores)"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald" />
-          </button>
-
-          {/* Telemetry Drawer */}
-          <button
-            onClick={() => setTelemetryOpen(true)}
-            className="text-xs font-mono px-2.5 py-1.5 rounded border border-editorial bg-surface dark:bg-darkSurface hover:bg-subtle text-ink dark:text-darkInk transition hidden sm:inline-flex items-center space-x-1"
-            title="Span Waterfall & pgvector Telemetry"
-          >
-            <Zap className="w-3.5 h-3.5 text-gold" />
-            <span>Traces</span>
-          </button>
-
-          {/* Light / Dark Theme Switcher */}
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 rounded border border-editorial bg-surface dark:bg-darkSurface flex items-center justify-center text-ink dark:text-darkInk hover:bg-subtle transition text-xs"
-            title="Toggle Light / Dark Mode"
-          >
-            {theme === "light" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
-          </button>
-
-          {/* Switch between Studio Workspace and Chat Copilot (Icon + Text) */}
+          {/* Switch between Studio Workspace and Chat Copilot (Immediately after Creator/Brand Mode) */}
           <button
             onClick={toggleChatView}
             className={`text-xs font-mono px-3 py-1.5 rounded border transition flex items-center space-x-1.5 font-bold shadow-sm ${
@@ -204,6 +176,34 @@ export function Masthead() {
                 <span className="hidden sm:inline">Chat Copilot</span>
               </>
             )}
+          </button>
+
+          {/* Telemetry Drawer */}
+          <button
+            onClick={() => setTelemetryOpen(true)}
+            className="text-xs font-mono px-2.5 py-1.5 rounded border border-editorial bg-surface dark:bg-darkSurface hover:bg-subtle text-ink dark:text-darkInk transition hidden sm:inline-flex items-center space-x-1"
+            title="Span Waterfall & pgvector Telemetry"
+          >
+            <Zap className="w-3.5 h-3.5 text-gold" />
+            <span>Traces</span>
+          </button>
+
+          {/* Proof Benchmark Lab (Icon-Only, immediately before Theme Switcher) */}
+          <button
+            onClick={() => setProofModalOpen(true)}
+            className="w-8 h-8 rounded border border-editorial bg-surface dark:bg-darkSurface flex items-center justify-center text-ink dark:text-darkInk hover:border-emerald transition text-xs hidden sm:flex"
+            title="Proof Benchmark Lab (LMSYS Arena Diff & DeepEval Scores)"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald" />
+          </button>
+
+          {/* Light / Dark Theme Switcher */}
+          <button
+            onClick={toggleTheme}
+            className="w-8 h-8 rounded border border-editorial bg-surface dark:bg-darkSurface flex items-center justify-center text-ink dark:text-darkInk hover:bg-subtle transition text-xs"
+            title="Toggle Light / Dark Mode"
+          >
+            {theme === "light" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { useCopilotChat, CopilotProposalArtifact } from "@/hooks/useCopilotChat";
 import { useAppStore } from "@/lib/store";
+import { MarkdownContent } from "./MarkdownContent";
 import {
   Send,
   Sparkles,
@@ -159,18 +160,16 @@ export const ChatWorkspace: React.FC = () => {
                 {/* Message Content */}
                 {msg.content && (
                   <div
-                    className={`p-3.5 rounded text-xs font-sans leading-relaxed ${
+                    className={`p-3.5 rounded text-xs leading-relaxed ${
                       msg.role === "user"
                         ? "bg-paper dark:bg-darkSubtle border border-editorial text-ink dark:text-darkInk inline-block max-w-xl text-left"
                         : "text-ink dark:text-darkInk bg-transparent"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap">
-                      {msg.content}
-                      {isStreaming && msg.role === "assistant" && !msg.artifact && (
-                        <span className="inline-block w-1.5 h-3 ml-1 bg-terracotta animate-pulse"></span>
-                      )}
-                    </p>
+                    <MarkdownContent
+                      content={msg.content}
+                      isStreaming={isStreaming && msg.role === "assistant" && !msg.artifact}
+                    />
                   </div>
                 )}
 

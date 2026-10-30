@@ -126,27 +126,80 @@ export function useCopilotChat() {
   const runSimulatedStreaming = useCallback(
     async (assistantId: string, text: string) => {
       const lower = text.toLowerCase();
-      const brand =
-        lower.includes("audio") || lower.includes("music") || lower.includes("synth") || lower.includes("sound")
-          ? "Teenage Engineering"
-          : lower.includes("tea") || lower.includes("drink") || lower.includes("coffee") || lower.includes("matcha")
-          ? "Matcha Kari"
-          : lower.includes("light") || lower.includes("lamp") || lower.includes("sconce") || lower.includes("furniture")
-          ? mode === "creator"
-            ? "Snow Peak"
-            : "Flos Architectural"
-          : "Acne Studios";
 
-      const category =
-        brand === "Teenage Engineering"
-          ? "tech"
-          : brand === "Matcha Kari"
-          ? "beverage"
-          : brand === "Snow Peak" || brand === "Flos Architectural"
-          ? "living"
-          : "apparel";
+      // Check if user specifically requested a brand partner in their prompt
+      const brandMatch = text.match(/(?:with|by|for|partnering)\s+([A-Z][a-zA-Z0-9\s'&]+)/);
+      const userNamedBrand = brandMatch ? brandMatch[1].trim() : null;
 
-      const affinity = brand === "Teenage Engineering" ? "8.4x" : brand === "Snow Peak" ? "9.1x" : "7.8x";
+      let brand = userNamedBrand || "Acne Studios";
+      let category = "apparel";
+      let title = `The '${activeProfile.name}' Limited Edition`;
+      let msrp = 185;
+      let units = 500;
+      let affinity = "8.2x";
+      let materials = ["14oz Okayama Indigo Denim", "Citron Selvedge Ticker", "Matte Nickel Hardware"];
+      let colorways = ["Midnight Indigo", "Raw Ecru"];
+
+      if (lower.includes("watch") || lower.includes("horology") || lower.includes("chronograph")) {
+        brand = userNamedBrand || "Grand Seiko";
+        category = "accessories";
+        title = `The '${activeProfile.name}' Titanium Chronograph`;
+        msrp = 2850;
+        units = 150;
+        affinity = "9.4x";
+        materials = ["Grade 5 Titanium Case", "Double-Curved Sapphire Crystal", "Japanese Mechanical Movement"];
+        colorways = ["Matte Void Black", "Brushed Titanium Silver"];
+      } else if (lower.includes("audio") || lower.includes("music") || lower.includes("synth") || lower.includes("sound") || lower.includes("hardware")) {
+        brand = userNamedBrand || "Teenage Engineering";
+        category = "tech";
+        title = "Pocket Operator VP-01 Synthesizer";
+        msrp = 249;
+        units = 350;
+        affinity = "8.4x";
+        materials = ["CNC Anodized 6061 Aluminum", "Low-Profile Switches", "Monochrome OLED Display"];
+        colorways = ["Anodized Silver", "Space Gray", "Signal Orange"];
+      } else if (lower.includes("tea") || lower.includes("drink") || lower.includes("coffee") || lower.includes("matcha") || lower.includes("beverage")) {
+        brand = userNamedBrand || "Matcha Kari";
+        category = "beverage";
+        title = "Ceremonial Single-Origin Uji Matcha";
+        msrp = 38;
+        units = 1200;
+        affinity = "6.9x";
+        materials = ["Single-Origin Uji Tencha", "UV Matte Nitrogen-Flushed Tin", "Hand-Carved Chasen"];
+        colorways = ["Ceremonial Green", "Wabi-Sabi Sand"];
+      } else if (lower.includes("light") || lower.includes("lamp") || lower.includes("sconce") || lower.includes("furniture") || lower.includes("living")) {
+        brand = userNamedBrand || (mode === "creator" ? "Snow Peak" : "Flos Architectural");
+        category = "living";
+        title = "Titanium Minimalist Wall Sconce";
+        msrp = 320;
+        units = 250;
+        affinity = "9.1x";
+        materials = ["Grade 2 Aerospace Titanium", "Hand-Blown Borosilicate Glass", "Solid Brushed Brass"];
+        colorways = ["Raw Titanium", "Charcoal Oxide"];
+      } else if (lower.includes("shoe") || lower.includes("sneaker") || lower.includes("footwear")) {
+        brand = userNamedBrand || "Salomon Advanced";
+        category = "footwear";
+        title = "XT-6 Tactical Trail Runner";
+        msrp = 210;
+        units = 450;
+        affinity = "8.6x";
+        materials = ["Ripstop TPU Mesh", "Quicklace System", "Contagrip Rubber Outsole"];
+        colorways = ["Obsidian Black", "Chalk White", "Cyber Rust"];
+      } else if (lower.includes("fragrance") || lower.includes("perfume") || lower.includes("scent")) {
+        brand = userNamedBrand || "Byredo";
+        category = "living";
+        title = "Eau de Parfum 'Latent Resonance'";
+        msrp = 220;
+        units = 300;
+        affinity = "7.9x";
+        materials = ["Recycled Glass Flacon", "Hand-Turned Wooden Cap", "Wild Bergamot & Cedar Extract"];
+        colorways = ["Smoked Amber", "Opal Frosted"];
+      }
+
+      const gmv = msrp * units;
+      const cogs = Math.round(gmv * 0.45);
+      const royalty_pct = 18;
+      const royalty_payout = Math.round(gmv * (royalty_pct / 100));
 
       // 1. Tool Call Notification
       setMessages((prev) =>
@@ -166,13 +219,12 @@ export function useCopilotChat() {
 
       await new Promise((r) => setTimeout(r, 200));
 
-      // 2. Stream narrative words progressively
-      const fullText = `Traversing Qloo's 250M+ entity Taste Graph for **${activeProfile.name}** (${
-        mode === "creator" ? "Creator Profile" : "Brand Profile"
-      })... Latent cross-domain traversal across declared anchors (${activeProfile.chips
-        .slice(0, 2)
-        .map((c) => c.name)
-        .join(", ")}) surfaces a verified **${affinity} statistical affinity lift** with **${brand}**.\n\nThis partnership connects authentic community subcultures directly to archival craftsmanship with audited unit economics and zero commercial saturation.`;
+      // 2. Stream narrative words progressively with markdown formatting
+      const fullText = `### Cultural Intelligence Traversal for ${activeProfile.name}\n\n` +
+        `Traversing Qloo's **250M+ entity Taste Graph** across declared cultural anchors: **${activeProfile.chips.slice(0, 2).map((c) => c.name).join(", ")}**.\n\n` +
+        `- **Empirical Affinity Lift:** The concept indexes **${affinity} above baseline** resonance with **${brand}**.\n` +
+        `- **Strategic Positioning:** Bridges ${activeProfile.name}'s visual DNA into high-margin physical production with zero commercial saturation.\n` +
+        `- **Audited Unit Economics:** Projected gross GMV of **$${gmv.toLocaleString()} USD** with an 18% net royalty yield.`;
 
       const words = fullText.split(" ");
       let currentContent = "";
@@ -182,59 +234,33 @@ export function useCopilotChat() {
         setMessages((prev) =>
           prev.map((m) => (m.id === assistantId ? { ...m, content: snapshot } : m))
         );
-        await new Promise((r) => setTimeout(r, 30));
+        await new Promise((r) => setTimeout(r, 25));
       }
 
       // 3. Attach rich proposal artifact
       const simulatedArtifact: CopilotProposalArtifact = {
         type: "collaboration_proposal",
         brand_name: brand,
-        title:
-          brand === "Teenage Engineering"
-            ? "Pocket Operator VP-01 Synthesizer"
-            : brand === "Matcha Kari"
-            ? "Ceremonial Single-Origin Uji Matcha"
-            : brand === "Snow Peak" || brand === "Flos Architectural"
-            ? "Titanium Minimalist Wall Sconce"
-            : "The 'Midnight Grid' 14oz Selvedge Chore Coat",
+        title,
         category,
         affinity_multiplier: affinity,
         affinity_comparison: [
           { name: brand, score: 94, affinity },
-          { name: "Secondary Lateral Partner", score: 86, affinity: "6.9x" },
-          { name: "Baseline Control", score: 58, affinity: "2.4x" },
+          { name: "Secondary Lateral Match", score: 86, affinity: "6.9x" },
+          { name: "Third Lateral Match", score: 78, affinity: "5.4x" },
+          { name: "Baseline Control", score: 54, affinity: "2.2x" },
         ],
         unit_economics: {
-          msrp:
-            brand === "Teenage Engineering"
-              ? 249
-              : brand === "Matcha Kari"
-              ? 38
-              : brand === "Snow Peak"
-              ? 320
-              : 185,
-          units: brand === "Matcha Kari" ? 1200 : 500,
-          gmv: brand === "Teenage Engineering" ? 87150 : brand === "Matcha Kari" ? 45600 : 92500,
-          cogs: brand === "Teenage Engineering" ? 39200 : brand === "Matcha Kari" ? 18240 : 41625,
-          royalty_pct: 18,
-          royalty_payout:
-            brand === "Teenage Engineering" ? 15687 : brand === "Matcha Kari" ? 9120 : 16650,
+          msrp,
+          units,
+          gmv,
+          cogs,
+          royalty_pct,
+          royalty_payout,
         },
-        materials:
-          category === "tech"
-            ? ["CNC Anodized 6061 Aluminum", "Low-Profile Switches", "Monochrome OLED Display"]
-            : category === "beverage"
-            ? ["Single-Origin Uji Tencha", "UV Matte Nitrogen-Flushed Tin", "Mulberry Packaging"]
-            : category === "living"
-            ? ["Grade 2 Aerospace Titanium", "Hand-Blown Glass", "Solid Brushed Brass"]
-            : ["14oz Okayama Indigo Denim", "Citron Selvedge Ticker", "Matte Nickel Hardware"],
-        colorways:
-          category === "tech"
-            ? ["Anodized Silver", "Space Gray", "Signal Orange"]
-            : category === "beverage"
-            ? ["Ceremonial Green", "Wabi-Sabi Sand"]
-            : ["Midnight Indigo", "Raw Ecru", "Washed Charcoal"],
-        rationale: `Qloo Taste Graph correlates ${activeProfile.name}'s declared anchors with ${brand}'s taxonomy with ${affinity} statistical affinity.`,
+        materials,
+        colorways,
+        rationale: `Qloo Taste Graph correlates ${activeProfile.name}'s declared anchors with ${brand}'s archival taxonomy with ${affinity} statistical affinity.`,
       };
 
       setMessages((prev) =>
