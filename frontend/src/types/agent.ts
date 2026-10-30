@@ -25,6 +25,9 @@ export interface ProductCollabSpec {
   creator_royalty_pct: number;
   projected_royalty: number;
   outreach_pitch: string;
+  generated_image_url?: string;
+  generated_image_prompt?: string;
+  generated_image_source?: string;
 }
 
 export interface ConsensusEvent {

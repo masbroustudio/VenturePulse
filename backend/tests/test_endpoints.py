@@ -92,3 +92,21 @@ def test_settings_llm_lifecycle():
         "model": "groq/qwen/qwen3.8-27b",
     })
 
+def test_generate_image_endpoint():
+    res = client.post("/api/generate/image", json={
+        "brand_name": "Acne Studios",
+        "title": "The 'Midnight Grid' 14oz Selvedge Chore Coat",
+        "category": "apparel",
+        "materials": ["14oz Okayama Denim", "Citron Selvedge"],
+        "colorways": ["Midnight Indigo"],
+        "profile_name": "Neon Void Studio"
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "SUCCESS"
+    assert "image_url" in data
+    assert data["image_url"].startswith("data:image/")
+    assert "prompt" in data
+    assert "Acne Studios" in data["prompt"]
+
+

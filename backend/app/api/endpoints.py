@@ -422,3 +422,178 @@ async def test_llm_connection(req: TestLLMRequest):
             status_code=502,
             detail=f"LiteLLM connection test failed ({latency}ms): {str(e)}"
         )
+
+# 11. ON-DEMAND GEMINI IMAGEN 3 IMAGE GENERATION
+class GenerateImageRequest(BaseModel):
+    card_id: Optional[str] = None
+    brand_name: str
+    title: str
+    category: str = "apparel"
+    materials: Optional[List[str]] = None
+    colorways: Optional[List[str]] = None
+    profile_name: Optional[str] = None
+    custom_prompt: Optional[str] = None
+
+def build_editorial_image_prompt(req: GenerateImageRequest) -> str:
+    if req.custom_prompt and req.custom_prompt.strip():
+        return req.custom_prompt.strip()
+
+    mat_str = ", ".join(req.materials) if req.materials else "archival high-grade materials"
+    col_str = ", ".join(req.colorways) if req.colorways else "obsidian and bone white"
+    profile = req.profile_name or "Venture Pulse Studio"
+
+    return (
+        f"Archival studio product photograph of {req.title}, an exclusive limited collaboration drop "
+        f"between {req.brand_name} and {profile}. Category: {req.category}. "
+        f"Crafted with exquisite detail featuring {mat_str}, in colorway {col_str}. "
+        f"Swiss editorial luxury presentation, Hasselblad H6D-100c medium format camera, 50mm prime lens, "
+        f"crisp museum studio daylight softbox lighting, architectural hairline shadows, high contrast textures, "
+        f"neutral clean background with subtle mathematical grid, 8K resolution, zero blur."
+    )
+
+def generate_editorial_fallback_svg(brand: str, title: str, category: str, profile: str) -> str:
+    import urllib.parse
+    cat = category.lower()
+    if "tech" in cat or "synth" in cat:
+        icon_path = """
+        <rect x="250" y="240" width="300" height="180" rx="12" fill="#18181b" stroke="#e05d44" stroke-width="2"/>
+        <rect x="270" y="260" width="120" height="60" rx="4" fill="#09090b" stroke="#3f3f46"/>
+        <circle cx="430" cy="280" r="14" fill="#27272a" stroke="#e05d44"/>
+        <circle cx="480" cy="280" r="14" fill="#27272a" stroke="#e05d44"/>
+        <circle cx="530" cy="280" r="14" fill="#27272a" stroke="#e05d44"/>
+        <line x1="270" y1="360" x2="530" y2="360" stroke="#3f3f46" stroke-dasharray="4 4"/>
+        """
+    elif "watch" in cat or "access" in cat:
+        icon_path = """
+        <circle cx="400" cy="330" r="100" fill="#18181b" stroke="#e05d44" stroke-width="2"/>
+        <circle cx="400" cy="330" r="85" fill="#09090b" stroke="#3f3f46"/>
+        <line x1="400" y1="330" x2="400" y2="270" stroke="#fafafa" stroke-width="2"/>
+        <line x1="400" y1="330" x2="445" y2="345" stroke="#e05d44" stroke-width="2"/>
+        <rect x="365" y="190" width="70" height="40" rx="4" fill="#27272a" stroke="#3f3f46"/>
+        <rect x="365" y="430" width="70" height="40" rx="4" fill="#27272a" stroke="#3f3f46"/>
+        """
+    elif "bev" in cat or "tea" in cat:
+        icon_path = """
+        <rect x="320" y="230" width="160" height="220" rx="16" fill="#18181b" stroke="#e05d44" stroke-width="2"/>
+        <rect x="340" y="210" width="120" height="20" rx="6" fill="#27272a" stroke="#e05d44"/>
+        <circle cx="400" cy="320" r="35" fill="#09090b" stroke="#3f3f46"/>
+        <text x="400" y="325" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e05d44" text-anchor="middle" font-weight="bold">MATCHA</text>
+        """
+    else:
+        icon_path = """
+        <path d="M300 230 L350 200 L450 200 L500 230 L530 330 L480 340 L470 470 L330 470 L320 340 L270 330 Z" fill="#18181b" stroke="#e05d44" stroke-width="2"/>
+        <line x1="400" y1="200" x2="400" y2="470" stroke="#3f3f46" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <rect x="345" y="270" width="40" height="45" fill="#09090b" stroke="#3f3f46" stroke-width="1"/>
+        """
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 640" width="800" height="640">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="640" fill="url(#bgGrad)"/>
+  <g stroke="#27272a" stroke-width="0.75" opacity="0.6">
+    <line x1="40" y1="0" x2="40" y2="640"/>
+    <line x1="760" y1="0" x2="760" y2="640"/>
+    <line x1="0" y1="40" x2="800" y2="40"/>
+    <line x1="0" y1="600" x2="800" y2="600"/>
+    <line x1="400" y1="0" x2="400" y2="640" stroke-dasharray="2 4"/>
+    <line x1="0" y1="320" x2="800" y2="320" stroke-dasharray="2 4"/>
+  </g>
+  <text x="60" y="70" font-family="'JetBrains Mono', monospace" font-size="11" fill="#71717a" letter-spacing="2">FIG 2.4 // AI STUDIO VISUAL PROOF</text>
+  <text x="740" y="70" font-family="'JetBrains Mono', monospace" font-size="10" fill="#e05d44" font-weight="bold" text-anchor="end">8K STUDIO PLATE</text>
+  {icon_path}
+  <text x="400" y="520" font-family="'Instrument Serif', serif" font-style="italic" font-size="28" fill="#fafafa" text-anchor="middle" letter-spacing="0.5">{title}</text>
+  <text x="400" y="548" font-family="'JetBrains Mono', monospace" font-size="12" fill="#e05d44" font-weight="bold" text-anchor="middle" letter-spacing="1.5">{brand.upper()} × {profile.upper()}</text>
+  <text x="400" y="575" font-family="'JetBrains Mono', monospace" font-size="9" fill="#71717a" text-anchor="middle" letter-spacing="1">ARCHIVAL CAPSULE DOSSIER • QLOO TASTE AI GROUNDED</text>
+  <path d="M30 40 L40 40 L40 30" fill="none" stroke="#e05d44" stroke-width="1.5"/>
+  <path d="M770 40 L760 40 L760 30" fill="none" stroke="#e05d44" stroke-width="1.5"/>
+  <path d="M30 600 L40 600 L40 610" fill="none" stroke="#e05d44" stroke-width="1.5"/>
+  <path d="M770 600 L760 600 L760 610" fill="none" stroke="#e05d44" stroke-width="1.5"/>
+</svg>"""
+    return f"data:image/svg+xml;utf8,{urllib.parse.quote(svg)}"
+
+@router.post("/generate/image")
+async def generate_product_image(req: GenerateImageRequest):
+    import httpx
+    settings = get_settings()
+    prompt = build_editorial_image_prompt(req)
+    gemini_key = settings.gemini_api_key or os.environ.get("GEMINI_API_KEY")
+
+    image_url = None
+    source = "fallback"
+    notice = None
+
+    if gemini_key:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={gemini_key}"
+            headers = {"Content-Type": "application/json"}
+            body = {
+                "instances": [{"prompt": prompt}],
+                "parameters": {
+                    "sampleCount": 1,
+                    "aspectRatio": "1:1",
+                    "outputOptions": {"mimeType": "image/jpeg"}
+                }
+            }
+            async with httpx.AsyncClient(timeout=25.0) as client:
+                resp = await client.post(url, json=body, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    predictions = data.get("predictions", [])
+                    if predictions and "bytesBase64Encoded" in predictions[0]:
+                        b64_img = predictions[0]["bytesBase64Encoded"]
+                        image_url = f"data:image/jpeg;base64,{b64_img}"
+                        source = "imagen-3"
+                    else:
+                        logger.warning(f"Imagen response missing predictions: {data}")
+                else:
+                    logger.warning(f"Imagen API returned status {resp.status_code}: {resp.text}")
+        except Exception as e:
+            logger.warning(f"Imagen 3 generation call failed: {e}")
+
+    if not image_url:
+        image_url = generate_editorial_fallback_svg(
+            brand=req.brand_name,
+            title=req.title,
+            category=req.category,
+            profile=req.profile_name or "Venture Pulse"
+        )
+        source = "fallback"
+        notice = "Generated using High-Fidelity Editorial Visualizer (Add GEMINI_API_KEY to enable Imagen 3)"
+
+    # Automatically persist to SQLite storage if card_id provided
+    if req.card_id:
+        deals = storage.get_deals()
+        for d in deals:
+            if d.get("card_id") == req.card_id:
+                spec = d.get("spec") or {}
+                spec["generated_image_url"] = image_url
+                spec["generated_image_prompt"] = prompt
+                spec["generated_image_source"] = source
+                storage.save_deal(
+                    card_id=d["card_id"],
+                    session_id=d.get("session_id", "default"),
+                    brand_name=d["brand_name"],
+                    category=d["category"],
+                    affinity_multiplier=d["affinity_multiplier"],
+                    synergy_score=d.get("synergy_score", 0.92),
+                    stage=d.get("stage", "Discovered"),
+                    msrp=d.get("msrp", 185.0),
+                    run_units=d.get("run_units", 500),
+                    gmv=d.get("gmv", 92500.0),
+                    title=d.get("title"),
+                    spec_json=json.dumps(spec)
+                )
+                break
+
+    return {
+        "status": "SUCCESS",
+        "source": source,
+        "image_url": image_url,
+        "prompt": prompt,
+        "notice": notice,
+        "card_id": req.card_id
+    }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
 import { useDeals } from "@/hooks/useDeals";
 import { CadSchematicViewer } from "./CadSchematicViewer";
+import { AiVisualProofViewer } from "./AiVisualProofViewer";
 import { X, Copy, Check, Send } from "lucide-react";
 
 interface Swatch {
@@ -298,7 +299,7 @@ ${activeProfile.name} Partnerships Lead`;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-surface dark:bg-darkSurface border border-editorial max-w-5xl w-full max-h-[92vh] overflow-y-auto rounded-xl p-6 sm:p-8 space-y-6 shadow-2xl">
+      <div className="bg-surface dark:bg-darkSurface border border-editorial max-w-6xl w-full max-h-[92vh] overflow-y-auto rounded-xl p-6 sm:p-8 space-y-6 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-editorial pb-4">
           <div className="flex items-center space-x-3">
@@ -318,30 +319,54 @@ ${activeProfile.name} Partnerships Lead`;
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left: Vector Blueprint & Material Swatches & Sliders (6 Cols) */}
-          <div className="lg:col-span-6 bg-paper dark:bg-darkSubtle border border-editorial p-6 sm:p-8 rounded space-y-5 shadow-editorial">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-xs text-inkMuted dark:text-darkMuted uppercase tracking-wider font-semibold">
-                {brandName} × {activeProfile.name}
-              </span>
-              <span className="font-mono text-xs font-bold text-ink dark:text-darkInk bg-subtle dark:bg-darkSubtle px-2 py-0.5 rounded border border-editorial">
-                EDITION 001 / {runUnits}
-              </span>
-            </div>
+        {/* Hero Meta Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-editorial pb-4 gap-2">
+          <div>
+            <span className="font-mono text-xs text-inkMuted dark:text-darkMuted uppercase tracking-wider font-semibold">
+              {brandName} × {activeProfile.name}
+            </span>
+            <h3 className="font-serif italic text-3xl sm:text-4xl text-ink dark:text-darkInk leading-tight mt-1">
+              {title}
+            </h3>
+            <p className="text-xs text-inkMuted dark:text-darkMuted leading-relaxed font-sans mt-1.5 max-w-3xl">
+              {description}
+            </p>
+          </div>
+          <div className="shrink-0 text-right font-mono text-xs">
+            <span className="bg-subtle dark:bg-darkSubtle px-2.5 py-1 rounded border border-editorial font-bold text-ink dark:text-darkInk">
+              EDITION 001 / {runUnits} UNITS
+            </span>
+          </div>
+        </div>
 
-            <div>
-              <h3 className="font-serif italic text-3xl sm:text-4xl text-ink dark:text-darkInk leading-tight">
-                {title}
-              </h3>
-              <p className="text-xs text-inkMuted dark:text-darkMuted leading-relaxed font-sans mt-2">
-                {description}
-              </p>
-            </div>
-
-            {/* Dynamic Category-Aware CAD Blueprint & Interactive BOM */}
+        {/* SPLIT-SCREEN VISUAL AREA: Vector Blueprint & AI Visual Proof */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          {/* Left: Dynamic Technical CAD Blueprint & Interactive BOM */}
+          <div className="bg-paper dark:bg-darkSubtle border border-editorial p-4 sm:p-5 rounded-lg shadow-sm flex flex-col justify-between">
             <CadSchematicViewer deal={selectedDeal} />
+          </div>
 
+          {/* Right: On-Demand Gemini Imagen 3 Studio Visual Proof */}
+          <div className="bg-paper dark:bg-darkSubtle border border-editorial p-4 sm:p-5 rounded-lg shadow-sm flex flex-col justify-between">
+            <AiVisualProofViewer
+              deal={selectedDeal}
+              onImageGenerated={(newImgUrl) => {
+                setSelectedDeal({
+                  ...selectedDeal,
+                  spec: {
+                    ...(selectedDeal.spec || {}),
+                    generated_image_url: newImgUrl,
+                  },
+                });
+              }}
+            />
+          </div>
+        </div>
+
+        {/* SPLIT-SCREEN LOWER AREA: Materials/Financials & Pitch/Dispatch */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Left: Material Swatches & Dynamic Unit Economics */}
+          <div className="space-y-4 bg-surface dark:bg-darkSurface border border-editorial p-5 sm:p-6 rounded-lg shadow-sm">
             {/* Clickable Material & Pantone Swatches */}
             <div className="space-y-2">
               <div className="flex items-center justify-between text-[10px] font-mono uppercase text-inkMuted dark:text-darkMuted">
@@ -363,7 +388,7 @@ ${activeProfile.name} Partnerships Lead`;
                   />
                 ))}
               </div>
-              <div className="p-2.5 rounded bg-surface dark:bg-darkSurface border border-editorial font-mono text-[11px] text-ink dark:text-darkInk space-y-0.5">
+              <div className="p-2.5 rounded bg-paper dark:bg-darkSubtle border border-editorial font-mono text-[11px] text-ink dark:text-darkInk space-y-0.5">
                 <div>
                   Selected: <strong className="text-terracotta">{activeSwatch.name}</strong> ({activeSwatch.pantone})
                 </div>
@@ -374,7 +399,7 @@ ${activeProfile.name} Partnerships Lead`;
             </div>
 
             {/* Interactive Unit Economics & Royalty Simulator */}
-            <div className="p-4 rounded bg-surface dark:bg-darkSurface border border-editorial space-y-3 font-mono text-xs">
+            <div className="p-4 rounded bg-paper dark:bg-darkSubtle border border-editorial space-y-3 font-mono text-xs">
               <div className="flex items-center justify-between border-b border-editorial pb-1.5 text-terracotta font-bold">
                 <span>📊 Dynamic Unit Economics Simulator</span>
                 <span className="text-[10px] text-inkMuted dark:text-darkMuted">
@@ -435,10 +460,10 @@ ${activeProfile.name} Partnerships Lead`;
             </div>
           </div>
 
-          {/* Right: Commercial Term Sheet & Cold Outreach Pitch (6 Cols) */}
-          <div className="lg:col-span-6 bg-surface dark:bg-darkSurface border border-editorial p-6 sm:p-8 rounded space-y-5 shadow-editorial text-xs font-mono flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between border-b border-editorial pb-3">
+          {/* Right: Commercial Term Sheet & Cold Outreach Pitch */}
+          <div className="space-y-4 bg-surface dark:bg-darkSurface border border-editorial p-5 sm:p-6 rounded-lg shadow-sm text-xs font-mono flex flex-col justify-between h-full">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-editorial pb-2">
                 <span className="font-bold text-ink dark:text-darkInk uppercase">
                   Commercial Term Sheet &amp; Pitch
                 </span>
@@ -447,7 +472,7 @@ ${activeProfile.name} Partnerships Lead`;
                   className="text-terracotta hover:underline font-bold flex items-center space-x-1"
                 >
                   {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? "Copied" : "Copy Pitch Copy"}</span>
+                  <span>{copied ? "Copied" : "Copy Pitch"}</span>
                 </button>
               </div>
 
@@ -455,18 +480,18 @@ ${activeProfile.name} Partnerships Lead`;
                 <span className="text-inkMuted dark:text-darkMuted uppercase text-[10px]">
                   Subject Line:
                 </span>
-                <div className="text-ink dark:text-darkInk font-bold mt-1 text-sm">
+                <div className="text-ink dark:text-darkInk font-bold mt-1 text-sm truncate">
                   {pitchSubject}
                 </div>
               </div>
 
-              <div className="space-y-2 text-ink dark:text-darkInk font-sans text-xs leading-relaxed bg-paper dark:bg-darkSubtle p-4 rounded border border-editorial">
+              <div className="space-y-2 text-ink dark:text-darkInk font-sans text-xs leading-relaxed bg-paper dark:bg-darkSubtle p-4 rounded border border-editorial max-h-[220px] overflow-y-auto">
                 <p className="whitespace-pre-wrap">{pitchBody}</p>
               </div>
             </div>
 
             {/* Webhook Dispatch Button */}
-            <div className="pt-4 border-t border-editorial flex items-center justify-between">
+            <div className="pt-4 border-t border-editorial flex items-center justify-between mt-4">
               <span className="text-inkMuted dark:text-darkMuted text-[11px]">
                 Destination: CRM Deal Desk &amp; Webhook
               </span>

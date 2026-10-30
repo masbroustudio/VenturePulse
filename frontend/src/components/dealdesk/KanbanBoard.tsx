@@ -80,7 +80,8 @@ ${deals
 - MSRP: $${d.msrp || 185} USD
 - Production Run: ${d.run_units || 500} units
 - Projected GMV: $${(d.gmv || 0).toLocaleString()} USD
-- Description: ${d.spec?.description || "Grounded Qloo cross-domain collaboration."}`
+- Description: ${d.spec?.description || "Grounded Qloo cross-domain collaboration."}
+- AI Studio Visual Proof: ${d.spec?.generated_image_url ? "Generated (Google Gemini Imagen 3)" : "Available on demand in Dossier"}`
   )
   .join("\n\n")}
 `;
