@@ -169,6 +169,23 @@ class Storage:
             conn.commit()
             return cursor.rowcount > 0
 
+    def delete_deal(self, card_id: str) -> bool:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM deals WHERE card_id = ?", (card_id,))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def clear_deals(self, session_id: Optional[str] = None) -> int:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if session_id:
+                cursor.execute("DELETE FROM deals WHERE session_id = ? OR session_id = 'all'", (session_id,))
+            else:
+                cursor.execute("DELETE FROM deals")
+            conn.commit()
+            return cursor.rowcount
+
     def add_embedding(self, entity_id: str, name: str, vector: List[float]):
         with self._get_connection() as conn:
             cursor = conn.cursor()

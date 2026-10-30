@@ -26,9 +26,28 @@ def test_crm_deals_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert "deals" in data
-    assert len(data["deals"]) >= 4
     assert "metrics" in data
-    assert data["metrics"]["total_pipeline_value"] > 0
+
+    # Test create deal
+    create_res = client.post("/api/crm/deals", json={
+        "card_id": "test_card_crud",
+        "session_id": "test-session",
+        "brand_name": "Test Brand Labs",
+        "title": "Minimalist Collaboration Drop",
+        "category": "tech",
+        "affinity_multiplier": "8.5x",
+        "stage": "Discovered",
+        "msrp": 200.0,
+        "run_units": 100,
+        "gmv": 20000.0
+    })
+    assert create_res.status_code == 200
+    assert create_res.json()["status"] == "CREATED"
+
+    # Test delete single deal
+    del_res = client.delete("/api/crm/deals/test_card_crud")
+    assert del_res.status_code == 200
+    assert del_res.json()["status"] == "DELETED"
 
 def test_eval_benchmark_endpoint():
     response = client.get("/api/eval/benchmark")

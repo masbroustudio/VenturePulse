@@ -1,15 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppStore } from "@/lib/store";
+import { useDeals } from "@/hooks/useDeals";
 import { EgoBrandNode, EgoTagNode } from "@/types/qloo";
 import { Plus, Minus, RotateCcw } from "lucide-react";
 
 export const EgoGraphSvg: React.FC = () => {
   const { activeProfile, mode, showToast } = useAppStore();
+  const { createDeal, isCreating } = useDeals();
   const graph = activeProfile.graph;
 
   const [hoveredBrandId, setHoveredBrandId] = useState<string | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<EgoBrandNode | null>(() => graph.brands[0] || null);
   const [selectedDetail, setSelectedDetail] = useState<{
     name: string;
     metric: string;
@@ -21,6 +24,18 @@ export const EgoGraphSvg: React.FC = () => {
     path: graph.brands[0]?.path || `urn:entity:${mode}:${activeProfile.id}`,
     guardrail: graph.brands[0]?.guardrail || "Anti-Affinity guardrails active across 250M+ entities.",
   }));
+
+  // Sync selectedBrand when active profile changes
+  useEffect(() => {
+    const firstBrand = graph.brands[0] || null;
+    setSelectedBrand(firstBrand);
+    setSelectedDetail({
+      name: firstBrand?.name || activeProfile.name,
+      metric: firstBrand ? `⚡ ${firstBrand.affinity} Affinity (Empirical Qloo Match)` : "Selected Center",
+      path: firstBrand?.path || `urn:entity:${mode}:${activeProfile.id}`,
+      guardrail: firstBrand?.guardrail || "Anti-Affinity guardrails active across 250M+ entities.",
+    });
+  }, [activeProfile.id, graph, mode]);
 
   const centerX = 300;
   const centerY = 230;
@@ -82,6 +97,7 @@ export const EgoGraphSvg: React.FC = () => {
 
   const handleBrandHover = (brand: EgoBrandNode) => {
     setHoveredBrandId(brand.id);
+    setSelectedBrand(brand);
     setSelectedDetail({
       name: brand.name,
       metric: `⚡ ${brand.affinity || "7.8x"} Affinity (Empirical Qloo Match)`,
@@ -95,6 +111,7 @@ export const EgoGraphSvg: React.FC = () => {
   };
 
   const handleInspectCenter = () => {
+    setSelectedBrand(null);
     setSelectedDetail({
       name: activeProfile.name,
       metric: `Role: ${graph.center.sub} • Category: ${activeProfile.category}`,
@@ -105,6 +122,7 @@ export const EgoGraphSvg: React.FC = () => {
   };
 
   const handleInspectTag = (tag: EgoTagNode) => {
+    setSelectedBrand(null);
     setSelectedDetail({
       name: `Latent Tag: ${tag.name}`,
       metric: `Confidence Weight: ${(tag.weight ?? 0.9).toFixed(2)}w (Latent Vector)`,
@@ -115,6 +133,7 @@ export const EgoGraphSvg: React.FC = () => {
   };
 
   const handleInspectBrand = (brand: EgoBrandNode) => {
+    setSelectedBrand(brand);
     setSelectedDetail({
       name: brand.name,
       metric: `⚡ ${brand.affinity || "7.8x"} Affinity (Empirical Qloo Match)`,
@@ -122,6 +141,42 @@ export const EgoGraphSvg: React.FC = () => {
       guardrail: brand.guardrail || "None",
     });
     showToast(`Inspecting Brand Partner: ${brand.name}`);
+  };
+
+  const handleAddToDealDesk = (brand: EgoBrandNode) => {
+    const rawAffinity = brand.affinity || "7.5x";
+    const affinityNum = parseFloat(rawAffinity.replace("x", "").trim()) || 7.5;
+    const estUnits = Math.round(affinityNum * 120);
+    const estMsrp = 185;
+    const estGmv = estUnits * estMsrp;
+
+    createDeal({
+      card_id: `deal_ego_${brand.id}_${Date.now().toString(36)}`,
+      brand_name: brand.name,
+      title: `${brand.name} Limited Drop`,
+      category: activeProfile.category || "apparel",
+      affinity_multiplier: rawAffinity.includes("x") ? rawAffinity : `${rawAffinity}x`,
+      synergy_score: Math.min(0.98, +(0.85 + affinityNum / 100).toFixed(2)),
+      stage: "Discovered",
+      msrp: estMsrp,
+      run_units: estUnits,
+      gmv: estGmv,
+      spec: {
+        title: `${brand.name} Limited Drop`,
+        brand_partner: brand.name,
+        category: activeProfile.category || "apparel",
+        affinity_multiplier: rawAffinity.includes("x") ? rawAffinity : `${rawAffinity}x`,
+        description: `Discovered via Qloo Concentric Multi-Hop Ego Graph. Empirical match anchored on taste tags and guardrails: ${brand.guardrail || "Verified signals"}.`,
+        materials: ["Archival Technical Twill", "Debossed Custom Hardware", "Vegetable-Tanned Accents"],
+        colorways: ["Obsidian Black", "Bone White"],
+        msrp_usd: estMsrp,
+        run_units: estUnits,
+        projected_gmv: estGmv,
+        creator_royalty_pct: 0.18,
+        projected_royalty: Math.round(estGmv * 0.18),
+        outreach_pitch: `According to Qloo's cultural intelligence graph (250M+ entities), our audience exhibits an extraordinary ${rawAffinity} statistical affinity for ${brand.name}. We've pre-architected a high-margin capsule collection.`,
+      },
+    });
   };
 
   const centerFill = mode === "creator" ? "#09090b" : "#4338ca";
@@ -399,14 +454,31 @@ export const EgoGraphSvg: React.FC = () => {
         </svg>
 
         {/* Bottom Floating Node Details Badge */}
-        <div className="absolute bottom-3 left-3 right-3 bg-surface/95 dark:bg-darkSurface/95 border border-editorial p-3 rounded text-xs font-mono space-y-1.5 shadow-md backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-inkMuted dark:text-darkMuted">
-              Target Node: <strong className="text-ink dark:text-darkInk">{selectedDetail.name}</strong>
-            </span>
-            <span className="text-terracotta font-bold">
-              {selectedDetail.metric}
-            </span>
+        <div className="absolute bottom-3 left-3 right-3 bg-surface/95 dark:bg-darkSurface/95 border border-editorial p-3 rounded text-xs font-mono space-y-2 shadow-md backdrop-blur-sm">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 truncate">
+              <span className="text-inkMuted dark:text-darkMuted">
+                Target Node: <strong className="text-ink dark:text-darkInk">{selectedDetail.name}</strong>
+              </span>
+              <span className="text-terracotta font-bold">
+                {selectedDetail.metric}
+              </span>
+            </div>
+            {selectedBrand && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToDealDesk(selectedBrand);
+                }}
+                disabled={isCreating}
+                className="shrink-0 flex items-center space-x-1.5 px-3 py-1 bg-ink dark:bg-white text-surface dark:text-ink hover:bg-terracotta dark:hover:bg-terracotta dark:hover:text-white transition font-mono text-[10px] font-bold uppercase tracking-wider rounded shadow-sm disabled:opacity-50"
+                title="Send target partner directly to Deal Desk Kanban"
+              >
+                <Plus className="w-3 h-3" />
+                <span>{isCreating ? "Adding..." : "+ Add to Deal Desk"}</span>
+              </button>
+            )}
           </div>
           <div className="text-[11px] text-inkMuted dark:text-darkMuted truncate">
             Active Multi-Hop Path: <span className="text-ink dark:text-darkInk font-semibold">{selectedDetail.path}</span>

@@ -184,73 +184,6 @@ async def get_deals(
 ):
     target_id = profile_id or session_id
     deals = storage.get_deals(stage=stage, session_id=target_id)
-    # Seed default deals if empty and no specific profile was requested
-    if not deals and not target_id:
-        defaults = [
-            ("card_1", "Acne Studios", "The 'Midnight Grid' 14oz Selvedge Chore Coat", "apparel", "7.8x", 0.94, "Discovered", 185.0, 500, 92500.0, {
-                "title": "The 'Midnight Grid' 14oz Selvedge Chore Coat",
-                "brand_partner": "Acne Studios",
-                "category": "apparel",
-                "affinity_multiplier": "7.8x",
-                "description": "Crafted in collaboration with Kuroki Mills, Okayama Japan. 14oz raw selvedge with citron ticker and debossed hardware.",
-                "materials": ["14oz Okayama Indigo Denim", "Citron Selvedge Ticker", "Matte Nickel Hardware", "Organic Cotton Pocketing"],
-                "colorways": ["Midnight Indigo", "Raw Ecru"],
-                "msrp_usd": 185.0,
-                "run_units": 500,
-                "projected_gmv": 92500.0,
-                "creator_royalty_pct": 0.18,
-                "projected_royalty": 16650.0,
-                "outreach_pitch": "According to Qloo's cultural intelligence graph (250M+ entities), our audience exhibits an extraordinary 7.8x statistical affinity for Acne Studios and Japanese raw selvedge outerwear."
-            }),
-            ("card_2", "Teenage Engineering", "Pocket Operator VP-01 Synthesizer", "tech", "8.4x", 0.91, "Vetted", 249.0, 300, 74700.0, {
-                "title": "Pocket Operator VP-01 Synthesizer",
-                "brand_partner": "Teenage Engineering",
-                "category": "tech",
-                "affinity_multiplier": "8.4x",
-                "description": "Custom pocket synthesizer with physical tactile keys, silicon-free architectural chassis, and custom generative firmware.",
-                "materials": ["CNC Anodized 6061 Aluminum", "Cherry MX Ultra-Low Profile Switches", "Monochrome OLED Display"],
-                "colorways": ["Anodized Silver", "Space Gray", "Signal Orange"],
-                "msrp_usd": 249.0,
-                "run_units": 300,
-                "projected_gmv": 74700.0,
-                "creator_royalty_pct": 0.18,
-                "projected_royalty": 13446.0,
-                "outreach_pitch": "Qloo data identifies an 8.4x cross-domain affinity among electronic audio producers and tactile design enthusiasts for Teenage Engineering."
-            }),
-            ("card_3", "Matcha Kari", "Ceremonial Single-Origin Uji Matcha", "beverage", "6.9x", 0.88, "Pitch Ready", 38.0, 1000, 38000.0, {
-                "title": "Ceremonial Single-Origin Uji Matcha",
-                "brand_partner": "Matcha Kari",
-                "category": "beverage",
-                "affinity_multiplier": "6.9x",
-                "description": "First-harvest ceremonial grade tencha stone-ground in Kyoto, packaged in matte nitrogen-sealed collectable tins.",
-                "materials": ["Single-Origin Uji Tencha", "Food-Grade UV Matte Tinplate", "Artisanal Bamboo Chasen"],
-                "colorways": ["Ceremonial Green", "Wabi-Sabi Sand", "Ink Black"],
-                "msrp_usd": 38.0,
-                "run_units": 1000,
-                "projected_gmv": 38000.0,
-                "creator_royalty_pct": 0.20,
-                "projected_royalty": 7600.0,
-                "outreach_pitch": "Our audience indexes 6.9x above baseline for slow-living rituals and ceremonial Japanese green tea culture."
-            }),
-            ("card_4", "Snow Peak", "Titanium Double-Wall Minimalist Sconce", "living", "9.1x", 0.96, "Dispatched", 320.0, 200, 64000.0, {
-                "title": "Titanium Double-Wall Minimalist Sconce",
-                "brand_partner": "Snow Peak",
-                "category": "living",
-                "affinity_multiplier": "9.1x",
-                "description": "Aerospace-grade Japanese titanium luminaire engineered for both expedition bivouacs and modern residential studios.",
-                "materials": ["Grade 2 Aerospace Titanium", "Hand-Blown Borosilicate Glass", "Solid Brushed Brass"],
-                "colorways": ["Raw Titanium", "Charcoal Oxide", "Sandblasted Gold"],
-                "msrp_usd": 320.0,
-                "run_units": 200,
-                "projected_gmv": 64000.0,
-                "creator_royalty_pct": 0.18,
-                "projected_royalty": 11520.0,
-                "outreach_pitch": "Cross-domain mapping reveals 9.1x mutual affinity between modern spatial creators and Snow Peak's outdoor minimalism."
-            })
-        ]
-        for c_id, name, title, cat, mult, syn, stg, msrp, units, gmv, spec in defaults:
-            storage.save_deal(c_id, "seed", name, cat, mult, syn, stg, msrp, units, gmv, title=title, spec_json=json.dumps(spec))
-        deals = storage.get_deals(stage=stage)
 
     total_value = sum(d["gmv"] for d in deals)
     avg_affinity = sum(float(d["affinity_multiplier"].replace("x", "")) for d in deals) / len(deals) if deals else 0.0
@@ -315,6 +248,46 @@ async def create_deal(req: CreateDealRequest):
         spec_json=json.dumps(req.spec) if req.spec else None
     )
     return {"status": "CREATED", "card_id": card_id, "brand_name": req.brand_name}
+
+@router.delete("/crm/deals/{card_id}")
+async def delete_deal(card_id: str):
+    success = storage.delete_deal(card_id)
+    if success:
+        return {"status": "DELETED", "card_id": card_id}
+    raise HTTPException(status_code=404, detail=f"Deal '{card_id}' not found")
+
+@router.delete("/crm/deals")
+async def clear_all_deals(session_id: Optional[str] = None):
+    deleted_count = storage.clear_deals(session_id)
+    return {"status": "CLEARED", "deleted_count": deleted_count, "session_id": session_id}
+
+class SeedCRMRequest(BaseModel):
+    session_id: Optional[str] = "neon-void"
+    deals: Optional[List[Dict[str, Any]]] = None
+
+@router.post("/crm/seed")
+async def seed_crm_deals(req: SeedCRMRequest):
+    target_id = req.session_id or "neon-void"
+    seeded_count = 0
+    if req.deals:
+        for d in req.deals:
+            c_id = d.get("card_id") or f"{target_id}_preset_{seeded_count + 1}"
+            storage.save_deal(
+                card_id=c_id,
+                session_id=target_id,
+                brand_name=d.get("brand_name") or d.get("brand", "Acne Studios"),
+                category=d.get("category") or d.get("domain", "apparel"),
+                affinity_multiplier=str(d.get("affinity_multiplier") or d.get("affinity", "7.8x")).replace("⚡ ", ""),
+                synergy_score=float(d.get("synergy_score") or d.get("score", 0.92)),
+                stage=d.get("stage", "Discovered"),
+                msrp=float(d.get("msrp", 185.0)),
+                run_units=int(d.get("run_units", 500)),
+                gmv=float(d.get("gmv", 92500.0)),
+                title=d.get("title"),
+                spec_json=json.dumps(d.get("spec")) if d.get("spec") else None
+            )
+            seeded_count += 1
+    return {"status": "SEEDED", "count": seeded_count, "session_id": target_id}
 
 class ChatMessage(BaseModel):
     role: str

@@ -220,7 +220,7 @@ function getCategorySwatches(deal: any): Swatch[] {
 
 export const LookbookModal: React.FC = () => {
   const { selectedDeal, setSelectedDeal, activeProfile, showToast } = useAppStore();
-  const { updateStage } = useDeals();
+  const { createDeal } = useDeals();
 
   const swatches = getCategorySwatches(selectedDeal);
   const [activeSwatch, setActiveSwatch] = useState<Swatch>(swatches[0]);
@@ -269,9 +269,31 @@ ${activeProfile.name} Partnerships Lead`;
   };
 
   const handleDispatch = () => {
-    updateStage({ card_id: selectedDeal.card_id, new_stage: "Dispatched" });
+    createDeal({
+      ...selectedDeal,
+      card_id: selectedDeal.card_id,
+      brand_name: brandName,
+      title: title,
+      category: selectedDeal.category || "apparel",
+      affinity_multiplier: selectedDeal.affinity_multiplier || "8.0x",
+      stage: "Dispatched",
+      msrp: retailPrice,
+      run_units: runUnits,
+      gmv: retailPrice * runUnits,
+      spec: {
+        ...(selectedDeal.spec || {}),
+        title: title,
+        brand_partner: brandName,
+        category: selectedDeal.category,
+        msrp_usd: retailPrice,
+        run_units: runUnits,
+        projected_gmv: retailPrice * runUnits,
+        creator_royalty_pct: royaltyPct,
+        projected_royalty: creatorRoyalty,
+        outreach_pitch: pitchBody,
+      },
+    });
     setSelectedDeal(null);
-    showToast(`Dispatched ${brandName} to CRM Webhook!`);
   };
 
   return (

@@ -80,6 +80,8 @@ export function useCopilotChat() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             card_id: cardId,
+            session_id: activeProfile.id,
+            profile_id: activeProfile.id,
             brand_name: artifact.brand_name,
             title: artifact.title,
             category: artifact.category,
@@ -108,6 +110,7 @@ export function useCopilotChat() {
         });
 
         if (res.ok) {
+          queryClient.invalidateQueries({ queryKey: ["crm-deals", mode, activeProfile.id] });
           queryClient.invalidateQueries({ queryKey: ["crm-deals"] });
           showToast(`✓ Added "${artifact.brand_name}" to Deal Desk Kanban!`);
           return;
@@ -117,6 +120,7 @@ export function useCopilotChat() {
       }
 
       // Offline state update
+      queryClient.invalidateQueries({ queryKey: ["crm-deals", mode, activeProfile.id] });
       queryClient.invalidateQueries({ queryKey: ["crm-deals"] });
       showToast(`✓ Added "${artifact.brand_name}" to Deal Desk Kanban!`);
     },
